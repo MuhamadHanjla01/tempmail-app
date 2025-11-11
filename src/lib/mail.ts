@@ -64,7 +64,7 @@ export async function createAccount(): Promise<Account> {
         } catch (e) {
             // response is not JSON, use statusText
         }
-        throw new Error(`Failed to create account: ${errorDetail}`);
+        throw new Error(`Failed to create account: ${errorDetail || 'Unknown error'}`);
     }
     const accountData = await createResponse.json();
 
@@ -82,7 +82,7 @@ export async function createAccount(): Promise<Account> {
         } catch (e) {
           // response is not JSON, use statusText
         }
-        throw new Error(`Failed to get token: ${errorDetail}`);
+        throw new Error(`Failed to get token: ${errorDetail || 'Unknown error'}`);
     }
 
     const tokenData = await tokenResponse.json();
