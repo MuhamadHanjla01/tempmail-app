@@ -9,16 +9,6 @@ import AppHeader from "@/components/header";
 import InboxView from "@/components/inbox-view";
 import EmailView from "@/components/email-view";
 import { cn } from "@/lib/utils";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 const POLLING_INTERVAL = 5000; // 5 seconds
 const TIMER_MINUTES = 10;
@@ -34,7 +24,6 @@ export default function MainApp() {
   const [isLoading, setIsLoading] = useState(true);
   const [isPolling, setIsPolling] = useState(false);
   const [isFetchingDetails, setIsFetchingDetails] = useState(false);
-  const [showNewEmailDialog, setShowNewEmailDialog] = useState(false);
 
   const { toast } = useToast();
 
@@ -50,7 +39,6 @@ export default function MainApp() {
   const { timeLeft, resetTimer, isRunning } = useTimer(TIMER_MINUTES, handleExpire);
 
   const generateNewEmail = useCallback(async () => {
-    setShowNewEmailDialog(false);
     setIsGenerating(true);
     setIsLoading(true);
     setMessages([]);
@@ -167,7 +155,7 @@ export default function MainApp() {
       <div className="flex flex-col h-screen bg-background text-foreground font-sans">
         <AppHeader
           email={account?.address || ""}
-          onNewEmail={() => setShowNewEmailDialog(true)}
+          onNewEmail={generateNewEmail}
           onExtend={extendSession}
           timeLeft={timeLeft}
           isGenerating={isGenerating}
@@ -203,21 +191,6 @@ export default function MainApp() {
           </div>
         </main>
       </div>
-
-      <AlertDialog open={showNewEmailDialog} onOpenChange={setShowNewEmailDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will generate a new temporary email address. All emails from the current address will be lost.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={generateNewEmail}>Continue</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }
