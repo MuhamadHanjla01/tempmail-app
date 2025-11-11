@@ -42,7 +42,7 @@ export default function AppHeader({
 }: AppHeaderProps) {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
-  const { canInstall, promptInstall } = usePwa();
+  const { canInstall, promptInstall, isInstallAvailable } = usePwa();
 
   const handleCopy = () => {
     if (isGenerating || !email) return;
@@ -54,7 +54,15 @@ export default function AppHeader({
   };
 
   const handleDownload = () => {
-    promptInstall();
+    if (isInstallAvailable) {
+      promptInstall();
+    } else {
+      toast({
+        title: "App Install",
+        description: "App is already installed or not available for installation.",
+        variant: "default",
+      });
+    }
   };
 
 
