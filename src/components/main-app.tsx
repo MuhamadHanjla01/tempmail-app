@@ -25,6 +25,7 @@ export default function MainApp() {
   const [isPolling, setIsPolling] = useState(false);
   const [isFetchingDetails, setIsFetchingDetails] = useState(false);
   const [favoriteAddresses, setFavoriteAddresses] = useState<string[]>([]);
+  const [prevFavoritesCount, setPrevFavoritesCount] = useState(0);
 
   const { toast } = useToast();
 
@@ -102,7 +103,9 @@ export default function MainApp() {
     try {
       const storedFavorites = localStorage.getItem("favoriteAddresses");
       if (storedFavorites) {
-        setFavoriteAddresses(JSON.parse(storedFavorites));
+        const parsedFavorites = JSON.parse(storedFavorites);
+        setFavoriteAddresses(parsedFavorites);
+        setPrevFavoritesCount(parsedFavorites.length);
       }
     } catch (error) {
       console.error("Failed to load favorite addresses from local storage", error);
@@ -110,10 +113,16 @@ export default function MainApp() {
     generateNewEmail();
   }, []);
 
-  // Save favorite addresses to local storage whenever they change
+  // Save favorite addresses to local storage and show toast
   useEffect(() => {
     try {
       localStorage.setItem("favoriteAddresses", JSON.stringify(favoriteAddresses));
+      if (favoriteAddresses.length > prevFavoritesCount) {
+        toast({ title: "Address Favorited!", description: "Saved to your favorite addresses."});
+      } else if (favoriteAddresses.length < prevFavoritesCount) {
+        toast({ title: "Address Removed", description: "Removed from your favorite addresses."});
+      }
+      setPrevFavoritesCount(favoriteAddresses.length);
     } catch (error) {
        console.error("Failed to save favorite addresses to local storage", error);
     }
@@ -167,10 +176,8 @@ export default function MainApp() {
     
     setFavoriteAddresses(prev => {
         if (prev.includes(account.address)) {
-            toast({ title: "Address Removed", description: "Removed from your favorite addresses."});
             return prev.filter(addr => addr !== account.address);
         } else {
-            toast({ title: "Address Favorited!", description: "Saved to your favorite addresses."});
             return [...prev, account.address];
         }
     })
