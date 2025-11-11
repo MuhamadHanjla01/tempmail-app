@@ -34,7 +34,7 @@ export default function SplashScreen() {
           Your private temporary inbox.
         </p>
         <Progress value={progress} className="w-64 md:w-96 mx-auto" />
-         <p className="text-sm text-muted-foreground mt-4">
+         <p className="text-sm text-muted-foreground mt-4 animate-fade-in-up opacity-0" style={{ animationDelay: '1s', animationFillMode: 'forwards' }}>
           DEVELOPED BY NEPDEV
         </p>
       </div>
