@@ -61,7 +61,7 @@ export async function createAccount(): Promise<Account> {
         let errorDetail = `(Status: ${createResponse.status})`;
         try {
             const error = await createResponse.json();
-            const message = error.detail || error.message;
+            const message = error.detail || error.message || (error['hydra:description']);
             if(message) errorDetail = `${message} ${errorDetail}`;
         } catch (e) {
             // response is not JSON, use statusText if available
@@ -81,7 +81,7 @@ export async function createAccount(): Promise<Account> {
         let errorDetail = `(Status: ${tokenResponse.status})`;
         try {
           const error = await tokenResponse.json();
-          const message = error.detail || error.message;
+          const message = error.detail || error.message || (error['hydra:description']);
           if(message) errorDetail = `${message} ${errorDetail}`;
         } catch (e) {
           // response is not JSON, use statusText
@@ -115,7 +115,7 @@ export async function login(address: string, password?: string): Promise<Account
         let errorDetail = `(Status: ${tokenResponse.status})`;
         try {
           const error = await tokenResponse.json();
-          const message = error.detail || error.message;
+          const message = error.detail || error.message || (error['hydra:description']);
           if(message) errorDetail = `${message} ${errorDetail}`;
         } catch (e) {
           // response is not JSON, use statusText
