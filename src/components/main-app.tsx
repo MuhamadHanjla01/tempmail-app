@@ -9,8 +9,18 @@ import AppHeader from "@/components/header";
 import InboxView from "@/components/inbox-view";
 import EmailView from "@/components/email-view";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-const POLLING_INTERVAL = 10000; // 10 seconds
+const POLLING_INTERVAL = 5000; // 5 seconds
 const TIMER_MINUTES = 10;
 
 export default function MainApp() {
@@ -23,6 +33,7 @@ export default function MainApp() {
   const [isGenerating, setIsGenerating] = useState(true);
   const [isFetchingMessages, setIsFetchingMessages] = useState(false);
   const [isFetchingDetails, setIsFetchingDetails] = useState(false);
+  const [showNewEmailDialog, setShowNewEmailDialog] = useState(false);
 
   const { toast } = useToast();
 
@@ -35,9 +46,10 @@ export default function MainApp() {
     generateNewEmail();
   }, [toast]);
 
-  const { timeLeft, resetTimer } = useTimer(TIMER_MINUTES, handleExpire);
+  const { timeLeft, resetTimer, isRunning } = useTimer(TIMER_MINUTES, handleExpire);
 
   const generateNewEmail = useCallback(async () => {
+    setShowNewEmailDialog(false);
     setIsGenerating(true);
     setMessages([]);
     setSelectedMessage(null);
@@ -63,21 +75,26 @@ export default function MainApp() {
     }
   }, [resetTimer, toast]);
 
-  useEffect(() => {
-    generateNewEmail();
-  }, [generateNewEmail]);
+  const extendSession = () => {
+    resetTimer();
+    toast({
+      title: "Session Extended!",
+      description: `Your session has been extended by ${TIMER_MINUTES} minutes.`,
+    })
+  }
 
   useEffect(() => {
-    if (!account?.token) return;
+    generateNewEmail();
+  }, []);
+
+  useEffect(() => {
+    if (!account?.token || !isRunning) return;
 
     const fetchMsgs = async () => {
       if(!account?.token) return;
       setIsFetchingMessages(true);
       try {
         const newMessages = await getMessages(account.token);
-        
-        const newMessagesIds = new Set(newMessages.map(m => m.id));
-        const currentMessagesIds = new Set(messages.map(m => m.id));
         
         if (newMessages.length > messages.length) {
            const latestMessage = newMessages[0];
@@ -86,10 +103,8 @@ export default function MainApp() {
               description: `From: ${latestMessage.from.name || latestMessage.from.address} - ${latestMessage.subject}`,
             });
         }
+        setMessages(newMessages);
 
-        if (newMessages.length !== messages.length || !Array.from(newMessagesIds).every(id => currentMessagesIds.has(id))) {
-          setMessages(newMessages);
-        }
       } catch (error) {
         console.error("Failed to fetch messages:", error);
       } finally {
@@ -97,11 +112,12 @@ export default function MainApp() {
       }
     };
 
-    fetchMsgs();
     const intervalId = setInterval(fetchMsgs, POLLING_INTERVAL);
+    // initial fetch
+    fetchMsgs();
 
     return () => clearInterval(intervalId);
-  }, [account?.token, messages, toast]);
+  }, [account?.token, isRunning, toast]);
 
   const handleSelectMessage = async (messageId: string) => {
     if (!account?.token || isFetchingDetails) return;
@@ -133,41 +149,60 @@ export default function MainApp() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground font-sans">
-      <AppHeader
-        email={account?.address || ""}
-        onNewEmail={generateNewEmail}
-        onExtend={resetTimer}
-        timeLeft={timeLeft}
-        isGenerating={isGenerating}
-      />
-      <main className="flex-1 flex overflow-hidden">
-        <div
-          className={cn(
-            "w-full md:w-[400px] lg:w-[450px] md:flex-shrink-0 border-r h-full overflow-y-auto",
-            selectedMessageId && "hidden md:block"
-          )}
-        >
-          <InboxView
-            messages={messages}
-            onSelectMessage={handleSelectMessage}
-            selectedId={selectedMessageId}
-            isLoading={isFetchingMessages || isGenerating}
-          />
-        </div>
-        <div
-          className={cn(
-            "flex-1 h-full overflow-y-auto",
-            !selectedMessageId && "hidden md:flex"
-          )}
-        >
-          <EmailView
-            message={selectedMessage}
-            isLoading={isFetchingDetails}
-            onBack={handleDeselect}
-          />
-        </div>
-      </main>
-    </div>
+    <>
+      <div className="flex flex-col h-screen bg-background text-foreground font-sans">
+        <AppHeader
+          email={account?.address || ""}
+          onNewEmail={() => setShowNewEmailDialog(true)}
+          onExtend={extendSession}
+          timeLeft={timeLeft}
+          isGenerating={isGenerating}
+        />
+        <main className="flex-1 flex overflow-hidden">
+          <div
+            className={cn(
+              "w-full md:w-[400px] lg:w-[450px] md:flex-shrink-0 border-r h-full overflow-y-auto",
+              selectedMessageId && "hidden md:block"
+            )}
+          >
+            <InboxView
+              messages={messages}
+              onSelectMessage={handleSelectMessage}
+              selectedId={selectedMessageId}
+              isLoading={isFetchingMessages && messages.length === 0}
+              isPolling={isFetchingMessages}
+            />
+          </div>
+          <div
+            className={cn(
+              "flex-1 h-full",
+              !selectedMessageId && "hidden md:flex"
+            )}
+          >
+            <EmailView
+              message={selectedMessage}
+              isLoading={isFetchingDetails}
+              onBack={handleDeselect}
+              token={account?.token}
+            />
+          </div>
+        </main>
+      </div>
+
+      <AlertDialog open={showNewEmailDialog} onOpenChange={setShowNewEmailDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will generate a new temporary email address. All emails from the current address will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={generateNewEmail}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

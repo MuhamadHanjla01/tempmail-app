@@ -2,24 +2,31 @@
 
 import type { Message } from "@/lib/mail";
 import { cn } from "@/lib/utils";
-import { Inbox, Loader2 } from "lucide-react";
+import { Inbox, Loader2, Wifi, WifiOff } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type InboxViewProps = {
   messages: Message[];
   onSelectMessage: (id: string) => void;
   selectedId: string | null;
   isLoading: boolean;
+  isPolling: boolean;
 };
 
 const EmailItemSkeleton = () => (
-    <div className="flex items-center space-x-4 p-4">
-        <Skeleton className="h-12 w-12 rounded-full" />
+    <div className="flex items-start space-x-4 p-4">
+        <Skeleton className="h-10 w-10 rounded-full" />
         <div className="space-y-2 flex-1">
             <div className="flex justify-between">
-                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-4 w-2/5" />
                 <Skeleton className="h-3 w-1/4" />
             </div>
             <Skeleton className="h-4 w-3/4" />
@@ -33,6 +40,7 @@ export default function InboxView({
   onSelectMessage,
   selectedId,
   isLoading,
+  isPolling
 }: InboxViewProps) {
 
   return (
@@ -40,13 +48,24 @@ export default function InboxView({
        <div className="flex items-center justify-between p-2">
         <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
             Inbox 
+            <span className="text-sm font-normal text-muted-foreground">({messages.length})</span>
         </h2>
-        {isLoading && messages.length > 0 && <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />}
+        <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                    {isPolling ? <Wifi className="w-5 h-5 text-green-500 animate-pulse" /> : <WifiOff className="w-5 h-5 text-red-500" />}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent><p>{isPolling ? "Live polling enabled" : "Polling disabled"}</p></TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+
        </div>
 
-      {isLoading && messages.length === 0 ? (
-        <div className="space-y-2 mt-2">
-            {Array.from({ length: 5 }).map((_, i) => (
+      {isLoading ? (
+        <div className="space-y-2">
+            {Array.from({ length: 7 }).map((_, i) => (
                 <EmailItemSkeleton key={i} />
             ))}
         </div>
@@ -54,10 +73,10 @@ export default function InboxView({
         <div className="flex flex-col items-center justify-center h-full p-4 text-center text-muted-foreground">
             <Inbox className="w-16 h-16 mb-4 text-primary/30" />
             <h3 className="font-semibold text-lg">Your inbox is empty</h3>
-            <p className="text-sm">New emails will appear here.</p>
+            <p className="text-sm">As soon as you receive an email, it will appear here.</p>
         </div>
       ) : (
-        <div className="space-y-2 mt-2 overflow-y-auto">
+        <div className="space-y-2 mt-2 overflow-y-auto pr-2">
             {messages.map((message) => {
               const fromAddress = message.from.address;
               const senderName = message.from.name || fromAddress.split('@')[0];
@@ -71,17 +90,17 @@ export default function InboxView({
                     className={cn(
                     "w-full text-left p-3 rounded-lg border-2 transition-all",
                     selectedId === message.id
-                        ? "bg-primary/10 border-primary/50"
-                        : "border-transparent hover:bg-background/50 hover:border-border"
+                        ? "bg-primary/10 border-primary/50 shadow-sm"
+                        : "border-transparent hover:bg-card hover:border-border"
                     )}
                 >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-start gap-4">
                         <Avatar className="h-10 w-10">
                             <AvatarImage src={avatarUrl} alt={senderName}/>
                             <AvatarFallback>{senderInitial}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 truncate">
-                            <div className="flex justify-between items-center">
+                            <div className="flex justify-between items-baseline">
                                 <p className="font-semibold text-sm truncate">{senderName}</p>
                                 <p className="text-xs text-muted-foreground flex-shrink-0 ml-2">{formatDistanceToNow(new Date(message.date), { addSuffix: true })}</p>
                             </div>

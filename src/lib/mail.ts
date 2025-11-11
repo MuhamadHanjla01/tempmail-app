@@ -1,4 +1,3 @@
-
 const API_URL = "https://api.mail.tm";
 
 export interface Account {
@@ -14,21 +13,29 @@ export interface Message {
   subject: string;
   date: string;
   intro: string;
+  seen: boolean;
+}
+
+export interface Attachment {
+    id: string;
+    filename: string;
+    contentType: string;
+    disposition: string;
+    transferEncoding: string;
+    related: boolean;
+    size: number;
+    downloadUrl: string;
 }
 
 export interface MessageDetails extends Message {
-  attachments: {
-    filename: string;
-    contentType: string;
-    size: number;
-  }[];
+  attachments: Attachment[];
   body: string;
   textBody: string;
   htmlBody: string;
 }
 
 async function getDomain(): Promise<string> {
-  const response = await fetch(`${API_URL}/domains`);
+  const response = await fetch(`${API_URL}/domains?page=1`);
   if (!response.ok) {
     throw new Error("Failed to fetch domains from Mail.tm");
   }
@@ -79,9 +86,9 @@ export async function getMessages(token: string): Promise<Message[]> {
   if (!token) return [];
   const response = await fetch(`${API_URL}/messages`, {
     headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store'
   });
   if (!response.ok) {
-    // Gracefully handle no messages or other errors
     if (response.status === 401) {
         console.error("Unauthorized to fetch messages. Token might be invalid.");
         return [];
@@ -100,10 +107,21 @@ export async function getMessages(token: string): Promise<Message[]> {
     subject: msg.subject,
     date: msg.createdAt,
     intro: msg.intro,
+    seen: msg.seen
   }));
 }
 
 export async function getMessage(token: string, id: string): Promise<MessageDetails> {
+  // Mark message as seen
+  await fetch(`${API_URL}/messages/${id}`, {
+    method: 'PATCH',
+    headers: { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/merge-patch+json'
+    },
+    body: JSON.stringify({ seen: true })
+  });
+  
   const response = await fetch(`${API_URL}/messages/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -123,5 +141,6 @@ export async function getMessage(token: string, id: string): Promise<MessageDeta
     textBody: data.text || "",
     htmlBody: data.html?.[0] || "",
     intro: data.intro,
+    seen: data.seen,
   };
 }
