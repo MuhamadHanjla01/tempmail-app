@@ -13,7 +13,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Home, Settings, PanelLeft } from 'lucide-react';
+import { Home, Settings, PanelLeft, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function AdminLayout({
@@ -25,19 +25,17 @@ export default function AdminLayout({
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader>
-           <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Settings className="w-5 h-5" />
-              </Button>
-              <h2 className="text-lg font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
-                Admin Panel
+           <div className="flex items-center gap-2 p-2">
+              <ShieldCheck className="w-8 h-8 text-sidebar-primary" />
+              <h2 className="text-xl font-bold tracking-tighter group-data-[collapsible=icon]:hidden">
+                Admin
               </h2>
             </div>
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#" isActive>
+              <SidebarMenuButton href="/admin" isActive>
                 <Home />
                 Dashboard
               </SidebarMenuButton>
@@ -55,7 +53,7 @@ export default function AdminLayout({
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-6">
+         <header className="flex h-14 items-center gap-4 border-b bg-background/60 px-6 backdrop-blur-sm sticky top-0">
           <SidebarTrigger className="md:hidden">
             <PanelLeft />
           </SidebarTrigger>

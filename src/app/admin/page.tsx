@@ -1,5 +1,7 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DollarSign, Users, CreditCard, Activity } from "lucide-react";
+
 
 export default function AdminPage() {
   return (
@@ -10,7 +12,7 @@ export default function AdminPage() {
             <CardTitle className="text-sm font-medium">
               Total Revenue
             </CardTitle>
-            <span className="text-muted-foreground">$</span>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$45,231.89</div>
@@ -22,9 +24,9 @@ export default function AdminPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Users
+              Subscriptions
             </CardTitle>
-             <span className="text-muted-foreground">Users</span>
+             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+2350</div>
@@ -36,7 +38,7 @@ export default function AdminPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Sales</CardTitle>
-            <span className="text-muted-foreground">Sales</span>
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+12,234</div>
@@ -50,7 +52,7 @@ export default function AdminPage() {
             <CardTitle className="text-sm font-medium">
               Active Now
             </CardTitle>
-            <span className="text-muted-foreground">Activity</span>
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+573</div>
@@ -60,17 +62,15 @@ export default function AdminPage() {
           </CardContent>
         </Card>
       </div>
-       <div className="flex-1 rounded-lg border p-4 shadow-sm">
-          <div className="flex h-full items-center justify-center rounded-xl border-dashed">
-            <div className="text-center">
+       <div className="flex-1 rounded-xl border-2 border-dashed flex items-center justify-center">
+            <div className="text-center p-8">
               <h2 className="text-2xl font-bold tracking-tight">
-                Welcome to your Admin Panel
+                Your Admin Dashboard
               </h2>
-              <p className="text-muted-foreground">
-                You can start building your powerful features here.
+              <p className="text-muted-foreground mt-2 max-w-md mx-auto">
+                This is your central hub for managing your application. Start building your powerful features and controls here.
               </p>
             </div>
-          </div>
       </div>
     </main>
   );
