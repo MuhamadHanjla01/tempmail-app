@@ -3,6 +3,7 @@ const API_URL = "https://api.mail.tm";
 
 export interface Account {
   address: string;
+  password?: string;
   token: string;
   id: string;
 }
@@ -89,8 +90,41 @@ export async function createAccount(): Promise<Account> {
 
     return {
         address: address,
+        password: password,
         token: tokenData.token,
         id: accountData.id,
+    };
+}
+
+
+export async function login(address: string, password?: string): Promise<Account> {
+  if (!password) {
+    throw new Error("Password is required to log in to a favorite account.");
+  }
+   const tokenResponse = await fetch(`${API_URL}/token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address, password }),
+    });
+
+     if (!tokenResponse.ok) {
+        let errorDetail = tokenResponse.statusText;
+        try {
+          const error = await tokenResponse.json();
+          errorDetail = error.detail || error.message || errorDetail;
+        } catch (e) {
+          // response is not JSON, use statusText
+        }
+        throw new Error(`Failed to log in: ${errorDetail || 'Unknown error'}`);
+    }
+    const tokenData = await tokenResponse.json();
+
+    // We don't get the account ID back from login, but it's not strictly needed for fetching messages
+    return {
+        address: address,
+        password: password,
+        token: tokenData.token,
+        id: tokenData.id, // Assuming token response also contains id
     };
 }
 

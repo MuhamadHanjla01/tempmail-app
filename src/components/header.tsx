@@ -122,7 +122,7 @@ export default function AppHeader({
           <TooltipProvider>
              <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="destructive" size="icon" onClick={onNewEmail} disabled={isGenerating}>
+                <Button variant="default" size="icon" onClick={onNewEmail} disabled={isGenerating}>
                   <MailPlus className="h-5 w-5" />
                 </Button>
               </TooltipTrigger>

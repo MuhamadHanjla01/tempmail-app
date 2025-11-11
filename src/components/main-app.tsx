@@ -4,11 +4,14 @@ import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useTimer } from "@/hooks/use-timer";
 import type { Account, Message, MessageDetails } from "@/lib/mail";
-import { createAccount, getMessages, getMessage } from "@/lib/mail";
+import { createAccount, getMessages, getMessage, login } from "@/lib/mail";
 import AppHeader from "@/components/header";
 import InboxView from "@/components/inbox-view";
 import EmailView from "@/components/email-view";
 import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Star, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const POLLING_INTERVAL = 5000; // 5 seconds
 const TIMER_MINUTES = 10;
@@ -24,7 +27,7 @@ export default function MainApp() {
   const [isLoading, setIsLoading] = useState(true);
   const [isPolling, setIsPolling] = useState(false);
   const [isFetchingDetails, setIsFetchingDetails] = useState(false);
-  const [favoriteAddresses, setFavoriteAddresses] = useState<string[]>([]);
+  const [favoriteAccounts, setFavoriteAccounts] = useState<Account[]>([]);
   const [prevFavoritesCount, setPrevFavoritesCount] = useState(0);
 
   const { toast } = useToast();
@@ -40,9 +43,22 @@ export default function MainApp() {
 
   const { timeLeft, resetTimer, isRunning } = useTimer(TIMER_MINUTES, handleExpire);
 
-  const generateNewEmail = useCallback(async () => {
+  const switchAccount = useCallback((newAccount: Account) => {
     setIsGenerating(true);
-    setIsLoading(true);
+    setAccount(newAccount);
+    setMessages([]);
+    setSelectedMessage(null);
+    setSelectedMessageId(null);
+    resetTimer();
+    setIsGenerating(false);
+  }, [resetTimer]);
+
+
+  const generateNewEmail = useCallback(async (isSwitching = false) => {
+    if (!isSwitching) {
+      setIsGenerating(true);
+      setIsLoading(true);
+    }
     setMessages([]);
     setSelectedMessage(null);
     setSelectedMessageId(null);
@@ -51,10 +67,12 @@ export default function MainApp() {
       const newAccount = await createAccount();
       setAccount(newAccount);
       resetTimer();
-      toast({
-        title: "New Email Generated!",
-        description: "Your new temporary email is ready to use.",
-      });
+      if (!isSwitching) {
+        toast({
+          title: "New Email Generated!",
+          description: "Your new temporary email is ready to use.",
+        });
+      }
     } catch (error: any) {
       console.error(error);
       toast({
@@ -63,9 +81,28 @@ export default function MainApp() {
         variant: "destructive",
       });
     } finally {
-      setIsGenerating(false);
+      if (!isSwitching) {
+        setIsGenerating(false);
+      }
     }
   }, [resetTimer, toast]);
+
+  const handleSwitchToFavorite = async (favAccount: Account) => {
+    if (account?.address === favAccount.address) return;
+    setIsGenerating(true);
+    try {
+      const loggedInAccount = await login(favAccount.address, favAccount.password);
+      switchAccount(loggedInAccount);
+    } catch(error: any) {
+      toast({
+        title: "Failed to switch account",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   
   const fetchMsgs = useCallback(async (isInitial: boolean = false) => {
@@ -101,14 +138,14 @@ export default function MainApp() {
   // Load favorite addresses from local storage on initial render
   useEffect(() => {
     try {
-      const storedFavorites = localStorage.getItem("favoriteAddresses");
+      const storedFavorites = localStorage.getItem("favoriteAccounts");
       if (storedFavorites) {
         const parsedFavorites = JSON.parse(storedFavorites);
-        setFavoriteAddresses(parsedFavorites);
+        setFavoriteAccounts(parsedFavorites);
         setPrevFavoritesCount(parsedFavorites.length);
       }
     } catch (error) {
-      console.error("Failed to load favorite addresses from local storage", error);
+      console.error("Failed to load favorite accounts from local storage", error);
     }
     generateNewEmail();
   }, []);
@@ -116,17 +153,17 @@ export default function MainApp() {
   // Save favorite addresses to local storage and show toast
   useEffect(() => {
     try {
-      localStorage.setItem("favoriteAddresses", JSON.stringify(favoriteAddresses));
-      if (favoriteAddresses.length > prevFavoritesCount) {
+      localStorage.setItem("favoriteAccounts", JSON.stringify(favoriteAccounts));
+      if (favoriteAccounts.length > prevFavoritesCount) {
         toast({ title: "Address Favorited!", description: "Saved to your favorite addresses."});
-      } else if (favoriteAddresses.length < prevFavoritesCount) {
+      } else if (favoriteAccounts.length < prevFavoritesCount) {
         toast({ title: "Address Removed", description: "Removed from your favorite addresses."});
       }
-      setPrevFavoritesCount(favoriteAddresses.length);
+      setPrevFavoritesCount(favoriteAccounts.length);
     } catch (error) {
        console.error("Failed to save favorite addresses to local storage", error);
     }
-  }, [favoriteAddresses]);
+  }, [favoriteAccounts, prevFavoritesCount, toast]);
   
   useEffect(() => {
     if (!account?.token || isGenerating) return;
@@ -172,31 +209,57 @@ export default function MainApp() {
   };
   
   const handleToggleFavoriteAddress = () => {
-    if (!account?.address) return;
+    if (!account) return;
     
-    setFavoriteAddresses(prev => {
-        if (prev.includes(account.address)) {
-            return prev.filter(addr => addr !== account.address);
+    setFavoriteAccounts(prev => {
+        const isFavorited = prev.some(acc => acc.address === account.address);
+        if (isFavorited) {
+            return prev.filter(addr => addr.address !== account.address);
         } else {
-            return [...prev, account.address];
+            return [...prev, account];
         }
     })
   }
   
-  const isCurrentAddressFavorite = account?.address ? favoriteAddresses.includes(account.address) : false;
+  const isCurrentAddressFavorite = account?.address ? favoriteAccounts.some(acc => acc.address === account.address) : false;
 
   return (
     <>
       <div className="flex flex-col h-screen bg-background text-foreground font-sans">
         <AppHeader
           email={account?.address || ""}
-          onNewEmail={generateNewEmail}
+          onNewEmail={() => generateNewEmail(false)}
           timeLeft={timeLeft}
           isGenerating={isGenerating}
           onToggleFavorite={handleToggleFavoriteAddress}
           isFavorite={isCurrentAddressFavorite}
-          favoriteAddresses={favoriteAddresses}
+          favoriteAddresses={favoriteAccounts.map(acc => acc.address)}
         />
+        {favoriteAccounts.length > 0 && (
+          <div className="p-3 border-b">
+            <Card>
+              <CardHeader className="p-3">
+                <CardTitle className="text-md flex items-center gap-2"><Star className="w-4 h-4"/> Favorite Addresses</CardTitle>
+              </CardHeader>
+              <CardContent className="p-3 pt-0">
+                <div className="flex flex-wrap gap-2">
+                  {favoriteAccounts.map(favAccount => (
+                    <Button
+                      key={favAccount.address}
+                      variant={account?.address === favAccount.address ? "secondary" : "outline"}
+                      className="h-auto"
+                      onClick={() => handleSwitchToFavorite(favAccount)}
+                    >
+                      <div className="flex items-center gap-2">
+                          <span className="text-sm font-mono">{favAccount.address}</span>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
         <main className="flex-1 flex overflow-hidden">
           <div
             className={cn(
