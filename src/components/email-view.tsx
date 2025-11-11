@@ -17,7 +17,7 @@ type EmailViewProps = {
 export default function EmailView({ message, isLoading, onBack }: EmailViewProps) {
   if (isLoading) {
     return (
-        <div className="flex items-center justify-center h-full bg-secondary/50">
+        <div className="flex items-center justify-center h-full bg-background">
             <Loader2 className="w-10 h-10 animate-spin text-primary"/>
         </div>
     )
@@ -25,10 +25,10 @@ export default function EmailView({ message, isLoading, onBack }: EmailViewProps
 
   if (!message) {
     return (
-      <div className="hidden md:flex flex-col items-center justify-center h-full text-center text-muted-foreground bg-secondary/50 p-4">
-        <Inbox className="w-20 h-20 mb-4 text-primary/30" />
+      <div className="hidden md:flex flex-col items-center justify-center h-full text-center text-muted-foreground bg-background p-4">
+        <Inbox className="w-20 h-20 mb-4 text-primary/20" />
         <h3 className="font-semibold text-xl">Select an email to read</h3>
-        <p className="text-md">Your emails will be displayed here in full.</p>
+        <p className="text-md">Your emails will be displayed here.</p>
       </div>
     );
   }
@@ -39,14 +39,14 @@ export default function EmailView({ message, isLoading, onBack }: EmailViewProps
   const avatarUrl = `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(senderName)}`;
 
   return (
-    <div className="p-4 sm:p-6 bg-secondary/50 h-full">
-       <Button onClick={onBack} variant="ghost" className="md:hidden mb-4">
+    <div className="p-0 sm:p-4 bg-background h-full">
+       <Button onClick={onBack} variant="ghost" className="md:hidden m-4">
             <ChevronLeft className="w-4 h-4 mr-2" />
             Back to Inbox
         </Button>
-      <Card className="rounded-xl shadow-lg h-full overflow-y-auto">
-        <CardHeader className="p-6">
-          <CardTitle className="text-2xl font-bold tracking-tight">{message.subject}</CardTitle>
+      <Card className="rounded-none sm:rounded-xl shadow-none sm:shadow-lg h-full overflow-y-auto">
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-xl sm:text-2xl font-bold tracking-tight">{message.subject}</CardTitle>
           <Separator className="my-4" />
           <div className="flex items-center space-x-4">
             <Avatar className="h-12 w-12">
@@ -62,10 +62,11 @@ export default function EmailView({ message, isLoading, onBack }: EmailViewProps
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-6 prose dark:prose-invert max-w-none">
-          <div
+        <Separator />
+        <CardContent className="p-4 sm:p-6">
+           <div
+            className="prose dark:prose-invert max-w-none"
             dangerouslySetInnerHTML={{ __html: message.htmlBody || `<p>${message.textBody}</p>` }}
-            className="prose-sm sm:prose-base"
           />
         </CardContent>
       </Card>

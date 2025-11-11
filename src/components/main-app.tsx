@@ -79,6 +79,14 @@ export default function MainApp() {
         const newMessagesIds = new Set(newMessages.map(m => m.id));
         const currentMessagesIds = new Set(messages.map(m => m.id));
         
+        if (newMessages.length > messages.length) {
+           const latestMessage = newMessages[0];
+            toast({
+              title: "New Email Received!",
+              description: `From: ${latestMessage.from.name || latestMessage.from.address} - ${latestMessage.subject}`,
+            });
+        }
+
         if (newMessages.length !== messages.length || !Array.from(newMessagesIds).every(id => currentMessagesIds.has(id))) {
           setMessages(newMessages);
         }
@@ -93,7 +101,7 @@ export default function MainApp() {
     const intervalId = setInterval(fetchMsgs, POLLING_INTERVAL);
 
     return () => clearInterval(intervalId);
-  }, [account?.token, messages]);
+  }, [account?.token, messages, toast]);
 
   const handleSelectMessage = async (messageId: string) => {
     if (!account?.token || isFetchingDetails) return;
