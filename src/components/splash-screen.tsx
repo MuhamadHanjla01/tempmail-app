@@ -34,6 +34,9 @@ export default function SplashScreen() {
           Your private temporary inbox.
         </p>
         <Progress value={progress} className="w-64 md:w-96 mx-auto" />
+         <p className="text-sm text-muted-foreground mt-4">
+          Developed By NEPDEV
+        </p>
       </div>
     </div>
   );
