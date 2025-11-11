@@ -35,7 +35,7 @@ export default function MainApp() {
       description: "Generating a new temporary email address.",
       variant: "destructive",
     });
-    generateNewEmail();
+    generateNewEmail(false);
   }, [toast]);
 
   const { timeLeft, resetTimer } = useTimer(TIMER_MINUTES, handleExpire);
@@ -48,6 +48,7 @@ export default function MainApp() {
     setSelectedMessageId(null);
     resetTimer();
     setIsGenerating(false);
+    fetchMsgs(true, newAccount.token);
   }, [resetTimer]);
 
 
@@ -80,6 +81,7 @@ export default function MainApp() {
     } finally {
       if (!isSwitching) {
         setIsGenerating(false);
+        setIsLoading(false);
       }
     }
   }, [resetTimer, toast]);
@@ -102,17 +104,20 @@ export default function MainApp() {
   };
 
   
-  const fetchMsgs = useCallback(async (isInitial: boolean = false) => {
-      if(!account?.token) return;
+  const fetchMsgs = useCallback(async (isInitial: boolean = false, token?: string) => {
+      const activeToken = token || account?.token;
+      if(!activeToken) return;
+
       if (isInitial) {
         setIsLoading(true);
       } else {
         setIsPolling(true);
       }
       try {
-        const newMessages = await getMessages(account.token);
+        const newMessages = await getMessages(activeToken);
         
-        if (newMessages.length > messages.length) {
+        // Only show toast for new messages, not on initial load or switch
+        if (newMessages.length > messages.length && !isInitial) {
            const latestMessage = newMessages[0];
             toast({
               title: "New Email Received!",
@@ -144,11 +149,15 @@ export default function MainApp() {
     } catch (error) {
       console.error("Failed to load favorite accounts from local storage", error);
     }
-    generateNewEmail();
-  }, []);
+    // Generate initial email after loading favorites
+    generateNewEmail(false);
+  }, []); // Should only run once on mount
 
   // Save favorite addresses to local storage and show toast
   useEffect(() => {
+    // Prevent saving on initial load
+    if (favoriteAccounts.length === 0 && prevFavoritesCount === 0) return;
+
     try {
       localStorage.setItem("favoriteAccounts", JSON.stringify(favoriteAccounts));
       if (favoriteAccounts.length > prevFavoritesCount) {
@@ -160,20 +169,17 @@ export default function MainApp() {
     } catch (error) {
        console.error("Failed to save favorite addresses to local storage", error);
     }
-  }, [favoriteAccounts, prevFavoritesCount, toast]);
+  }, [favoriteAccounts]);
   
   useEffect(() => {
     if (!account?.token || isGenerating) return;
     
-    // Fetch immediately after generation
-    if (messages.length === 0) {
-        fetchMsgs(true);
-    }
+    fetchMsgs(true);
     
     const intervalId = setInterval(() => fetchMsgs(false), POLLING_INTERVAL);
 
     return () => clearInterval(intervalId);
-  }, [account?.token, isGenerating, fetchMsgs, messages.length]);
+  }, [account?.token, isGenerating]);
 
 
   const handleSelectMessage = async (messageId: string) => {
@@ -227,7 +233,7 @@ export default function MainApp() {
           email={account?.address || ""}
           onNewEmail={() => generateNewEmail(false)}
           timeLeft={timeLeft}
-          isGenerating={isGenerating}
+          isGenerating={isGenerating || isLoading}
           onToggleFavorite={handleToggleFavoriteAddress}
           isFavorite={isCurrentAddressFavorite}
           favoriteAddresses={favoriteAccounts.map(acc => acc.address)}
