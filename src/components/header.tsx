@@ -69,6 +69,66 @@ export default function AppHeader({
   return (
     <header className="border-b p-3">
       <div className="container mx-auto flex items-center justify-between gap-2 w-full">
+        <div className="flex items-center gap-3">
+          <ShieldCheck className="w-8 h-8 text-primary" />
+          <h1 className="text-2xl font-bold tracking-tighter">TempMail</h1>
+        </div>
+        
+        <div className="flex-1 max-w-lg hidden md:block">
+            <div className="relative">
+                <div className="flex items-center gap-2 bg-secondary/50 p-2 rounded-lg">
+                {isGenerating ? (
+                    <div className="flex items-center gap-2 text-md font-semibold text-primary/80 animate-pulse w-full">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span>Generating new email...</span>
+                    </div>
+                ) : (
+                    <p className="text-md font-semibold text-foreground truncate flex-1" title={email}>{email}</p>
+                )}
+
+                 <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={onToggleFavorite}
+                          disabled={isGenerating || !email}
+                          className="h-8 w-8"
+                        >
+                          <Star
+                            className={cn(
+                              "h-4 w-4",
+                              isFavorite && "fill-yellow-400 text-yellow-400"
+                            )}
+                          />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          {isFavorite
+                            ? "Remove from favorites"
+                            : "Add to favorites"}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                             <Button variant="ghost" size="icon" onClick={handleCopy} disabled={isGenerating} className="h-8 w-8">
+                                <Copy className="h-4 w-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Copy Email</p></TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                </div>
+          </div>
+        </div>
+
         <div className="flex items-center gap-1">
             <div className="text-right p-2 hidden sm:block">
                 <p className="text-sm text-muted-foreground">Expires in</p>
@@ -129,66 +189,6 @@ export default function AppHeader({
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-        </div>
-        
-        <div className="flex-1 max-w-lg hidden md:block">
-            <div className="relative">
-                <div className="flex items-center gap-2 bg-secondary/50 p-2 rounded-lg">
-                {isGenerating ? (
-                    <div className="flex items-center gap-2 text-md font-semibold text-primary/80 animate-pulse w-full">
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                        <span>Generating new email...</span>
-                    </div>
-                ) : (
-                    <p className="text-md font-semibold text-foreground truncate flex-1" title={email}>{email}</p>
-                )}
-
-                 <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={onToggleFavorite}
-                          disabled={isGenerating || !email}
-                          className="h-8 w-8"
-                        >
-                          <Star
-                            className={cn(
-                              "h-4 w-4",
-                              isFavorite && "fill-yellow-400 text-yellow-400"
-                            )}
-                          />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>
-                          {isFavorite
-                            ? "Remove from favorites"
-                            : "Add to favorites"}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                             <Button variant="ghost" size="icon" onClick={handleCopy} disabled={isGenerating} className="h-8 w-8">
-                                <Copy className="h-4 w-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Copy Email</p></TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <ShieldCheck className="w-8 h-8 text-primary" />
-          <h1 className="text-2xl font-bold tracking-tighter">TempMail</h1>
         </div>
       </div>
        <div className="md:hidden mt-3">
