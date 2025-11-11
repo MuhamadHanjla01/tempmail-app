@@ -48,13 +48,13 @@ export default function MainApp() {
       setAccount(newAccount);
       resetTimer();
       toast({
-        title: "New Email Generated",
-        description: "Your new temporary email is ready.",
+        title: "New Email Generated!",
+        description: "Your new temporary email is ready to use.",
       });
     } catch (error: any) {
       console.error(error);
       toast({
-        title: "Error",
+        title: "Error Generating Email",
         description: `Failed to generate a new email: ${error.message}. Please try again.`,
         variant: "destructive",
       });
@@ -71,44 +71,49 @@ export default function MainApp() {
     if (!account?.token) return;
 
     const fetchMsgs = async () => {
+      if(!account?.token) return;
       setIsFetchingMessages(true);
       try {
         const newMessages = await getMessages(account.token);
-        // Check for new messages before updating state to avoid unnecessary re-renders
-        if (JSON.stringify(newMessages) !== JSON.stringify(messages)) {
+        
+        const newMessagesIds = new Set(newMessages.map(m => m.id));
+        const currentMessagesIds = new Set(messages.map(m => m.id));
+        
+        if (newMessages.length !== messages.length || !Array.from(newMessagesIds).every(id => currentMessagesIds.has(id))) {
           setMessages(newMessages);
         }
       } catch (error) {
-        // Silent fail for polling
         console.error("Failed to fetch messages:", error);
       } finally {
         setIsFetchingMessages(false);
       }
     };
 
-    fetchMsgs(); // Initial fetch
+    fetchMsgs();
     const intervalId = setInterval(fetchMsgs, POLLING_INTERVAL);
 
     return () => clearInterval(intervalId);
   }, [account?.token, messages]);
 
   const handleSelectMessage = async (messageId: string) => {
-    if (selectedMessageId === messageId) return;
+    if (!account?.token || isFetchingDetails) return;
+    
+    if (selectedMessageId === messageId && selectedMessage) return;
 
-    if (!account?.token) return;
     setIsFetchingDetails(true);
-    setSelectedMessage(null);
     setSelectedMessageId(messageId);
+    setSelectedMessage(null);
+
     try {
       const fullMessage = await getMessage(account.token, messageId);
       setSelectedMessage(fullMessage);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Could not fetch email content.",
+        title: "Error Fetching Email",
+        description: "Could not fetch email content. Please try again.",
         variant: "destructive",
       });
-      setSelectedMessageId(null); // Deselect on error
+      setSelectedMessageId(null);
     } finally {
       setIsFetchingDetails(false);
     }
@@ -120,9 +125,9 @@ export default function MainApp() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground font-body">
+    <div className="flex flex-col h-screen bg-background text-foreground font-sans">
       <AppHeader
-        email={account?.address || "Generating..."}
+        email={account?.address || ""}
         onNewEmail={generateNewEmail}
         onExtend={resetTimer}
         timeLeft={timeLeft}
@@ -131,21 +136,21 @@ export default function MainApp() {
       <main className="flex-1 flex overflow-hidden">
         <div
           className={cn(
-            "w-full md:w-[350px] md:flex-shrink-0 border-r border-border/50 h-full overflow-y-auto",
-            selectedMessage && "hidden md:block"
+            "w-full md:w-[400px] lg:w-[450px] md:flex-shrink-0 border-r h-full overflow-y-auto",
+            selectedMessageId && "hidden md:block"
           )}
         >
           <InboxView
             messages={messages}
             onSelectMessage={handleSelectMessage}
             selectedId={selectedMessageId}
-            isLoading={isFetchingMessages && messages.length === 0}
+            isLoading={isFetchingMessages || isGenerating}
           />
         </div>
         <div
           className={cn(
             "flex-1 h-full overflow-y-auto",
-            !selectedMessage && "hidden md:flex"
+            !selectedMessageId && "hidden md:flex"
           )}
         >
           <EmailView

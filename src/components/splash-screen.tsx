@@ -2,6 +2,7 @@
 
 import { Progress } from "@/components/ui/progress";
 import { useState, useEffect } from "react";
+import { Mail } from "lucide-react";
 
 export default function SplashScreen() {
   const [progress, setProgress] = useState(0);
@@ -22,14 +23,17 @@ export default function SplashScreen() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-background text-foreground">
-      <div className="text-center p-4">
-        <h1 className="text-4xl md:text-6xl font-bold font-headline mb-4 text-primary">
-          TEMP-MAIL
+      <div className="flex flex-col items-center justify-center space-y-4">
+        <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center">
+            <Mail className="w-12 h-12 text-primary" />
+        </div>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-primary">
+          TempMail
         </h1>
-        <p className="text-lg md:text-xl text-muted-foreground mb-8">
-          No Login, No Signup, Just Privacy.
+        <p className="text-lg md:text-xl text-muted-foreground">
+          Your private temporary inbox.
         </p>
-        <Progress value={progress} className="w-64 md:w-96 mx-auto bg-slate-200 dark:bg-slate-800" />
+        <Progress value={progress} className="w-64 md:w-96 mx-auto" />
       </div>
     </div>
   );
