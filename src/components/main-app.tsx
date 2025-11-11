@@ -19,7 +19,7 @@ export default function MainApp() {
   const [selectedMessage, setSelectedMessage] = useState<MessageDetails | null>(
     null
   );
-  const [selectedMessageId, setSelectedMessageId] = useState<number | null>(null);
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(true);
   const [isFetchingMessages, setIsFetchingMessages] = useState(false);
   const [isFetchingDetails, setIsFetchingDetails] = useState(false);
@@ -51,11 +51,11 @@ export default function MainApp() {
         title: "New Email Generated",
         description: "Your new temporary email is ready.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       toast({
         title: "Error",
-        description: "Failed to generate a new email. Please try again.",
+        description: `Failed to generate a new email: ${error.message}. Please try again.`,
         variant: "destructive",
       });
     } finally {
@@ -68,12 +68,12 @@ export default function MainApp() {
   }, [generateNewEmail]);
 
   useEffect(() => {
-    if (!account?.address) return;
+    if (!account?.token) return;
 
     const fetchMsgs = async () => {
       setIsFetchingMessages(true);
       try {
-        const newMessages = await getMessages(account.address);
+        const newMessages = await getMessages(account.token);
         // Check for new messages before updating state to avoid unnecessary re-renders
         if (JSON.stringify(newMessages) !== JSON.stringify(messages)) {
           setMessages(newMessages);
@@ -90,17 +90,17 @@ export default function MainApp() {
     const intervalId = setInterval(fetchMsgs, POLLING_INTERVAL);
 
     return () => clearInterval(intervalId);
-  }, [account?.address, messages]);
+  }, [account?.token, messages]);
 
-  const handleSelectMessage = async (messageId: number) => {
+  const handleSelectMessage = async (messageId: string) => {
     if (selectedMessageId === messageId) return;
 
-    if (!account?.address) return;
+    if (!account?.token) return;
     setIsFetchingDetails(true);
     setSelectedMessage(null);
     setSelectedMessageId(messageId);
     try {
-      const fullMessage = await getMessage(account.address, messageId);
+      const fullMessage = await getMessage(account.token, messageId);
       setSelectedMessage(fullMessage);
     } catch (error) {
       toast({

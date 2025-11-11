@@ -3,7 +3,7 @@
 import type { MessageDetails } from "@/lib/mail";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { Inbox, ChevronLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";

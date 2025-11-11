@@ -8,8 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type InboxViewProps = {
   messages: Message[];
-  onSelectMessage: (id: number) => void;
-  selectedId: number | null;
+  onSelectMessage: (id: string) => void;
+  selectedId: string | null;
   isLoading: boolean;
 };
 
