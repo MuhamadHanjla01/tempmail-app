@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, MailPlus, Sun, Moon, Loader2, ShieldCheck, Settings, Star } from "lucide-react";
+import { Copy, MailPlus, Sun, Moon, Loader2, ShieldCheck, Settings, Star, Download } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -127,6 +127,19 @@ export default function AppHeader({
                 </Button>
               </TooltipTrigger>
               <TooltipContent><p>New Email Address</p></TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Download className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Download App</p>
+              </TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
