@@ -9,9 +9,6 @@ import AppHeader from "@/components/header";
 import InboxView from "@/components/inbox-view";
 import EmailView from "@/components/email-view";
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Star, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const POLLING_INTERVAL = 5000; // 5 seconds
 const TIMER_MINUTES = 10;
@@ -41,7 +38,7 @@ export default function MainApp() {
     generateNewEmail();
   }, [toast]);
 
-  const { timeLeft, resetTimer, isRunning } = useTimer(TIMER_MINUTES, handleExpire);
+  const { timeLeft, resetTimer } = useTimer(TIMER_MINUTES, handleExpire);
 
   const switchAccount = useCallback((newAccount: Account) => {
     setIsGenerating(true);
@@ -235,31 +232,6 @@ export default function MainApp() {
           isFavorite={isCurrentAddressFavorite}
           favoriteAddresses={favoriteAccounts.map(acc => acc.address)}
         />
-        {favoriteAccounts.length > 0 && (
-          <div className="p-3 border-b">
-            <Card>
-              <CardHeader className="p-3">
-                <CardTitle className="text-md flex items-center gap-2"><Star className="w-4 h-4"/> Favorite Addresses</CardTitle>
-              </CardHeader>
-              <CardContent className="p-3 pt-0">
-                <div className="flex flex-wrap gap-2">
-                  {favoriteAccounts.map(favAccount => (
-                    <Button
-                      key={favAccount.address}
-                      variant={account?.address === favAccount.address ? "secondary" : "outline"}
-                      className="h-auto"
-                      onClick={() => handleSwitchToFavorite(favAccount)}
-                    >
-                      <div className="flex items-center gap-2">
-                          <span className="text-sm font-mono">{favAccount.address}</span>
-                      </div>
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
         <main className="flex-1 flex overflow-hidden">
           <div
             className={cn(
@@ -274,6 +246,9 @@ export default function MainApp() {
               isLoading={isLoading || (isGenerating && messages.length === 0)}
               isPolling={isPolling}
               onRefresh={() => fetchMsgs(true)}
+              favoriteAccounts={favoriteAccounts}
+              onSwitchToFavorite={handleSwitchToFavorite}
+              currentAccount={account}
             />
           </div>
           <div
