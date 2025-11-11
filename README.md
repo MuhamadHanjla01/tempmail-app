@@ -32,7 +32,7 @@ Follow these instructions to get a local copy up and running for development and
 
 1.  **Clone the repository** (or download the source code):
     ```sh
-    git clone https://github.com/your-username/tempmail-app.git
+    git clone https://github.com/MuhamadHanjla01/tempmail-app.git
     cd tempmail-app
     ```
 
