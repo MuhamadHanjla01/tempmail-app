@@ -8,10 +8,10 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Show splash screen for 3 seconds
+    // Show splash screen for 2 seconds
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 3000); 
+    }, 2000); 
 
     return () => clearTimeout(timer);
   }, []);

@@ -16,7 +16,7 @@ export default function SplashScreen() {
         }
         return prev + 1;
       });
-    }, 28); 
+    }, 18); 
 
     return () => clearInterval(timer);
   }, []);
