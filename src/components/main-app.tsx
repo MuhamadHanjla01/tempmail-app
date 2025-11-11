@@ -24,6 +24,7 @@ export default function MainApp() {
   const [isLoading, setIsLoading] = useState(true);
   const [isPolling, setIsPolling] = useState(false);
   const [isFetchingDetails, setIsFetchingDetails] = useState(false);
+  const [favoriteAddresses, setFavoriteAddresses] = useState<string[]>([]);
 
   const { toast } = useToast();
 
@@ -95,10 +96,28 @@ export default function MainApp() {
         }
       }
     }, [account?.token, messages.length, toast]);
-
+    
+  // Load favorite addresses from local storage on initial render
   useEffect(() => {
+    try {
+      const storedFavorites = localStorage.getItem("favoriteAddresses");
+      if (storedFavorites) {
+        setFavoriteAddresses(JSON.parse(storedFavorites));
+      }
+    } catch (error) {
+      console.error("Failed to load favorite addresses from local storage", error);
+    }
     generateNewEmail();
   }, []);
+
+  // Save favorite addresses to local storage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem("favoriteAddresses", JSON.stringify(favoriteAddresses));
+    } catch (error) {
+       console.error("Failed to save favorite addresses to local storage", error);
+    }
+  }, [favoriteAddresses]);
   
   useEffect(() => {
     if (!account?.token || isGenerating) return;
@@ -142,6 +161,22 @@ export default function MainApp() {
     setSelectedMessage(null);
     setSelectedMessageId(null);
   };
+  
+  const handleToggleFavoriteAddress = () => {
+    if (!account?.address) return;
+    
+    setFavoriteAddresses(prev => {
+        if (prev.includes(account.address)) {
+            toast({ title: "Address Removed", description: "Removed from your favorite addresses."});
+            return prev.filter(addr => addr !== account.address);
+        } else {
+            toast({ title: "Address Favorited!", description: "Saved to your favorite addresses."});
+            return [...prev, account.address];
+        }
+    })
+  }
+  
+  const isCurrentAddressFavorite = account?.address ? favoriteAddresses.includes(account.address) : false;
 
   return (
     <>
@@ -151,6 +186,9 @@ export default function MainApp() {
           onNewEmail={generateNewEmail}
           timeLeft={timeLeft}
           isGenerating={isGenerating}
+          onToggleFavorite={handleToggleFavoriteAddress}
+          isFavorite={isCurrentAddressFavorite}
+          favoriteAddresses={favoriteAddresses}
         />
         <main className="flex-1 flex overflow-hidden">
           <div

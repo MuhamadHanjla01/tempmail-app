@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, RefreshCw, MailPlus, Sun, Moon, Loader2, ShieldCheck, Settings } from "lucide-react";
+import { Copy, MailPlus, Sun, Moon, Loader2, ShieldCheck, Settings, Star } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -15,13 +15,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 type AppHeaderProps = {
   email: string;
   onNewEmail: () => void;
   timeLeft: string;
   isGenerating: boolean;
+  onToggleFavorite: () => void;
+  isFavorite: boolean;
+  favoriteAddresses: string[];
 };
 
 export default function AppHeader({
@@ -29,6 +35,9 @@ export default function AppHeader({
   onNewEmail,
   timeLeft,
   isGenerating,
+  onToggleFavorite,
+  isFavorite,
+  favoriteAddresses,
 }: AppHeaderProps) {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
@@ -61,6 +70,34 @@ export default function AppHeader({
                 ) : (
                     <p className="text-md font-semibold text-foreground truncate flex-1" title={email}>{email}</p>
                 )}
+
+                 <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={onToggleFavorite}
+                          disabled={isGenerating || !email}
+                          className="h-8 w-8"
+                        >
+                          <Star
+                            className={cn(
+                              "h-4 w-4",
+                              isFavorite && "fill-yellow-400 text-yellow-400"
+                            )}
+                          />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          {isFavorite
+                            ? "Remove from favorites"
+                            : "Add to favorites"}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
 
                 <TooltipProvider>
                     <Tooltip>
@@ -100,6 +137,7 @@ export default function AppHeader({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                 <DropdownMenuLabel>Theme</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => setTheme("light")}>
                   <Sun className="mr-2 h-4 w-4" />
                   <span>Light</span>
@@ -108,6 +146,17 @@ export default function AppHeader({
                   <Moon className="mr-2 h-4 w-4" />
                   <span>Dark</span>
                 </DropdownMenuItem>
+                {favoriteAddresses.length > 0 && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Favorite Addresses</DropdownMenuLabel>
+                    {favoriteAddresses.map((favEmail) => (
+                      <DropdownMenuItem key={favEmail} disabled>
+                        <span className="truncate">{favEmail}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
         </div>
@@ -123,7 +172,33 @@ export default function AppHeader({
                 ) : (
                     <p className="text-sm font-semibold text-foreground truncate flex-1" title={email}>{email}</p>
                 )}
-
+                 <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={onToggleFavorite}
+                          disabled={isGenerating || !email}
+                          className="h-8 w-8"
+                        >
+                          <Star
+                            className={cn(
+                              "h-4 w-4",
+                              isFavorite && "fill-yellow-400 text-yellow-400"
+                            )}
+                          />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          {isFavorite
+                            ? "Remove from favorites"
+                            : "Add to favorites"}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
