@@ -35,7 +35,7 @@ export default function SplashScreen() {
         </p>
         <Progress value={progress} className="w-64 md:w-96 mx-auto" />
          <p className="text-sm text-muted-foreground mt-4">
-          Developed By NEPDEV
+          DEVELOPED BY NEPDEV
         </p>
       </div>
     </div>
