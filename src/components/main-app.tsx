@@ -31,7 +31,8 @@ export default function MainApp() {
   );
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(true);
-  const [isFetchingMessages, setIsFetchingMessages] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPolling, setIsPolling] = useState(false);
   const [isFetchingDetails, setIsFetchingDetails] = useState(false);
   const [showNewEmailDialog, setShowNewEmailDialog] = useState(false);
 
@@ -51,6 +52,7 @@ export default function MainApp() {
   const generateNewEmail = useCallback(async () => {
     setShowNewEmailDialog(false);
     setIsGenerating(true);
+    setIsLoading(true);
     setMessages([]);
     setSelectedMessage(null);
     setSelectedMessageId(null);
@@ -82,17 +84,14 @@ export default function MainApp() {
       description: `Your session has been extended by ${TIMER_MINUTES} minutes.`,
     })
   }
-
-  useEffect(() => {
-    generateNewEmail();
-  }, []);
-
-  useEffect(() => {
-    if (!account?.token || !isRunning) return;
-
-    const fetchMsgs = async () => {
+  
+  const fetchMsgs = useCallback(async (isInitial: boolean = false) => {
       if(!account?.token) return;
-      setIsFetchingMessages(true);
+      if (isInitial) {
+        setIsLoading(true);
+      } else {
+        setIsPolling(true);
+      }
       try {
         const newMessages = await getMessages(account.token);
         
@@ -108,16 +107,31 @@ export default function MainApp() {
       } catch (error) {
         console.error("Failed to fetch messages:", error);
       } finally {
-        setIsFetchingMessages(false);
+        if (isInitial) {
+            setIsLoading(false);
+        } else {
+            setIsPolling(false);
+        }
       }
-    };
+    }, [account?.token, messages.length, toast]);
 
-    const intervalId = setInterval(fetchMsgs, POLLING_INTERVAL);
-    // initial fetch
-    fetchMsgs();
+  useEffect(() => {
+    generateNewEmail();
+  }, []);
+  
+  useEffect(() => {
+    if (!account?.token || isGenerating) return;
+    
+    // Fetch immediately after generation
+    if (messages.length === 0) {
+        fetchMsgs(true);
+    }
+    
+    const intervalId = setInterval(() => fetchMsgs(false), POLLING_INTERVAL);
 
     return () => clearInterval(intervalId);
-  }, [account?.token, isRunning, toast]);
+  }, [account?.token, isGenerating, fetchMsgs, messages.length]);
+
 
   const handleSelectMessage = async (messageId: string) => {
     if (!account?.token || isFetchingDetails) return;
@@ -169,8 +183,9 @@ export default function MainApp() {
               messages={messages}
               onSelectMessage={handleSelectMessage}
               selectedId={selectedMessageId}
-              isLoading={isFetchingMessages && messages.length === 0}
-              isPolling={isFetchingMessages}
+              isLoading={isLoading || (isGenerating && messages.length === 0)}
+              isPolling={isPolling}
+              onRefresh={() => fetchMsgs(true)}
             />
           </div>
           <div

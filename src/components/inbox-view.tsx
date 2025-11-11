@@ -2,10 +2,11 @@
 
 import type { Message } from "@/lib/mail";
 import { cn } from "@/lib/utils";
-import { Inbox, Loader2, Wifi, WifiOff } from "lucide-react";
+import { Inbox, Loader2, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -19,6 +20,7 @@ type InboxViewProps = {
   selectedId: string | null;
   isLoading: boolean;
   isPolling: boolean;
+  onRefresh: () => void;
 };
 
 const EmailItemSkeleton = () => (
@@ -40,7 +42,8 @@ export default function InboxView({
   onSelectMessage,
   selectedId,
   isLoading,
-  isPolling
+  isPolling,
+  onRefresh,
 }: InboxViewProps) {
 
   return (
@@ -50,16 +53,26 @@ export default function InboxView({
             Inbox 
             <span className="text-sm font-normal text-muted-foreground">({messages.length})</span>
         </h2>
-        <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                    {isPolling ? <Wifi className="w-5 h-5 text-green-500 animate-pulse" /> : <WifiOff className="w-5 h-5 text-red-500" />}
-                </div>
-              </TooltipTrigger>
-              <TooltipContent><p>{isPolling ? "Live polling enabled" : "Polling disabled"}</p></TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
+        <div className="flex items-center gap-2">
+            <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" onClick={onRefresh} disabled={isLoading || isPolling}>
+                        <RefreshCw className={cn("w-5 h-5", (isLoading || isPolling) && "animate-spin")} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Refresh Inbox</p></TooltipContent>
+                </Tooltip>
+                 <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 text-muted-foreground p-2">
+                        {isPolling ? <Wifi className="w-5 h-5 text-green-500" /> : <WifiOff className="w-5 h-5 text-red-500" />}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent><p>{isPolling ? "Live polling enabled" : "Polling disabled"}</p></TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </div>
 
        </div>
 
