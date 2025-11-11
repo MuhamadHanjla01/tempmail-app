@@ -4,59 +4,49 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar"
+import { formatDistanceToNow } from "date-fns"
 
-const recentSalesData = [
+const recentAccountsData = [
     {
-        name: "Olivia Martin",
-        email: "olivia.martin@email.com",
-        amount: "+$1,999.00",
-        avatar: "OM"
+        email: "user1@example.com",
+        createdAt: new Date(Date.now() - 1000 * 60 * 2),
     },
     {
-        name: "Jackson Lee",
-        email: "jackson.lee@email.com",
-        amount: "+$39.00",
-        avatar: "JL"
+        email: "visitor23@domain.com",
+        createdAt: new Date(Date.now() - 1000 * 60 * 5),
+
     },
     {
-        name: "Isabella Nguyen",
-        email: "isabella.nguyen@email.com",
-        amount: "+$299.00",
-        avatar: "IN"
+        email: "temp-xyz@mail.tm",
+        createdAt: new Date(Date.now() - 1000 * 60 * 15),
     },
     {
-        name: "William Kim",
-        email: "will@email.com",
-        amount: "+$99.00",
-        avatar: "WK"
+        email: "another-one@provider.org",
+        createdAt: new Date(Date.now() - 1000 * 60 * 30),
     },
     {
-        name: "Sofia Davis",
-        email: "sofia.davis@email.com",
-        amount: "+$39.00",
-        avatar: "SD"
+        email: "last-user@web.com",
+        createdAt: new Date(Date.now() - 1000 * 60 * 55),
     }
 ]
 
 export default function RecentSales() {
   return (
     <div className="space-y-8">
-      {recentSalesData.map((sale, index) => (
+      {recentAccountsData.map((account, index) => (
          <div key={index} className="flex items-center">
             <Avatar className="h-9 w-9">
-            <AvatarImage src={`/avatars/${index + 1}.png`} alt="Avatar" />
-            <AvatarFallback>{sale.avatar}</AvatarFallback>
+            <AvatarImage src={`https://api.dicebear.com/8.x/initials/svg?seed=${account.email}`} alt="Avatar" />
+            <AvatarFallback>{account.email[0].toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="ml-4 space-y-1">
-            <p className="text-sm font-medium leading-none">{sale.name}</p>
+            <p className="text-sm font-medium leading-none truncate">{account.email}</p>
             <p className="text-sm text-muted-foreground">
-                {sale.email}
+                {formatDistanceToNow(account.createdAt, { addSuffix: true })}
             </p>
             </div>
-            <div className="ml-auto font-medium">{sale.amount}</div>
       </div>
       ))}
     </div>
   )
 }
-

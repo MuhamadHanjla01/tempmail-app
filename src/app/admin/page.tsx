@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, CreditCard, Activity } from "lucide-react";
+import { Users, Mail, Timer, Globe } from "lucide-react";
 import OverviewChart from "@/components/admin/overview-chart";
 import RecentSales from "@/components/admin/recent-sales";
 
@@ -12,26 +12,26 @@ export default function AdminPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Total Revenue
+              Total Accounts Created
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$45,231.89</div>
+            <div className="text-2xl font-bold">1,254</div>
             <p className="text-xs text-muted-foreground">
-              +20.1% from last month
+              +32 since last hour
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Subscriptions
+              Emails Received Today
             </CardTitle>
-             <Users className="h-4 w-4 text-muted-foreground" />
+             <Mail className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+2350</div>
+            <div className="text-2xl font-bold">+2,350</div>
             <p className="text-xs text-muted-foreground">
               +180.1% from last month
             </p>
@@ -39,27 +39,27 @@ export default function AdminPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sales</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Active Timers</CardTitle>
+            <Timer className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+12,234</div>
+            <div className="text-2xl font-bold">+573</div>
             <p className="text-xs text-muted-foreground">
-              +19% from last month
+              +21 since last hour
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Active Now
+              Domains in Use
             </CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <Globe className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+573</div>
+            <div className="text-2xl font-bold">5</div>
             <p className="text-xs text-muted-foreground">
-              +201 since last hour
+              Stable
             </p>
           </CardContent>
         </Card>
@@ -68,6 +68,7 @@ export default function AdminPage() {
           <Card className="xl:col-span-2">
             <CardHeader>
               <CardTitle>Overview</CardTitle>
+               <CardDescription>New accounts created per month.</CardDescription>
             </CardHeader>
             <CardContent className="pl-2">
               <OverviewChart />
@@ -75,9 +76,9 @@ export default function AdminPage() {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Recent Sales</CardTitle>
+              <CardTitle>Recent Accounts</CardTitle>
               <CardDescription>
-                You made 265 sales this month.
+                25 accounts created in the last hour.
               </CardDescription>
             </CardHeader>
             <CardContent>
