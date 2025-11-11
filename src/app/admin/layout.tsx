@@ -13,7 +13,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Home, Settings, PanelLeft, ShieldCheck } from 'lucide-react';
+import { Home, Settings, PanelLeft, ShieldCheck, PlusCircle, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
 
@@ -65,6 +65,18 @@ export default function AdminLayout({
               {pathname === '/admin' ? 'Dashboard' : 'Settings'}
             </h1>
           </div>
+            {pathname === '/admin' && (
+              <div className="flex items-center gap-2">
+                <Button variant="outline">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export Data
+                </Button>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add New User
+                </Button>
+              </div>
+            )}
         </header>
         {children}
       </SidebarInset>
