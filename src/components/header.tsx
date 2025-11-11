@@ -68,7 +68,7 @@ export default function AppHeader({
 
   return (
     <header className="border-b p-3">
-      <div className="container mx-auto flex items-center justify-start gap-2 w-full">
+      <div className="container mx-auto flex items-center justify-between gap-2 w-full">
         <div className="flex items-center gap-3">
           <ShieldCheck className="w-8 h-8 text-primary" />
           <h1 className="text-2xl font-bold tracking-tighter">TempMail</h1>
@@ -129,7 +129,7 @@ export default function AppHeader({
           </div>
         </div>
 
-        <div className="flex items-center gap-1 ml-auto">
+        <div className="flex items-center gap-1">
             <div className="text-right p-2 hidden sm:block">
                 <p className="text-sm text-muted-foreground">Expires in</p>
                 <p className="font-bold text-lg">{timeLeft}</p>
