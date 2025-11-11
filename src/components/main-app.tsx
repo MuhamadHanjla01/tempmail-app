@@ -65,13 +65,6 @@ export default function MainApp() {
     }
   }, [resetTimer, toast]);
 
-  const extendSession = () => {
-    resetTimer();
-    toast({
-      title: "Session Extended!",
-      description: `Your session has been extended by ${TIMER_MINUTES} minutes.`,
-    })
-  }
   
   const fetchMsgs = useCallback(async (isInitial: boolean = false) => {
       if(!account?.token) return;
@@ -156,7 +149,6 @@ export default function MainApp() {
         <AppHeader
           email={account?.address || ""}
           onNewEmail={generateNewEmail}
-          onExtend={extendSession}
           timeLeft={timeLeft}
           isGenerating={isGenerating}
         />

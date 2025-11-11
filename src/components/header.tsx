@@ -20,7 +20,6 @@ import {
 type AppHeaderProps = {
   email: string;
   onNewEmail: () => void;
-  onExtend: () => void;
   timeLeft: string;
   isGenerating: boolean;
 };
@@ -28,7 +27,6 @@ type AppHeaderProps = {
 export default function AppHeader({
   email,
   onNewEmail,
-  onExtend,
   timeLeft,
   isGenerating,
 }: AppHeaderProps) {
@@ -85,14 +83,6 @@ export default function AppHeader({
                 <p className="font-bold text-lg">{timeLeft}</p>
             </div>
           <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" size="icon" onClick={onExtend} disabled={isGenerating}>
-                  <RefreshCw className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent><p>Extend Session</p></TooltipContent>
-            </Tooltip>
              <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="destructive" size="icon" onClick={onNewEmail} disabled={isGenerating}>
