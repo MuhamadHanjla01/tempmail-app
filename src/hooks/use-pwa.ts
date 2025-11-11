@@ -14,13 +14,12 @@ interface BeforeInstallPromptEvent extends Event {
 
 export const usePwa = () => {
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [canInstall, setCanInstall] = useState(false);
+  const [canInstall, setCanInstall] = useState(true); // Always true to show the button
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
       setInstallPrompt(event as BeforeInstallPromptEvent);
-      setCanInstall(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -28,7 +27,8 @@ export const usePwa = () => {
     // This event is fired when the PWA is successfully installed
     const handleAppInstalled = () => {
       setInstallPrompt(null);
-      setCanInstall(false);
+      // We don't set canInstall to false, to keep the button visible
+      // In a real app, you might want to hide it or change its state
     };
 
     window.addEventListener('appinstalled', handleAppInstalled);
@@ -49,8 +49,11 @@ export const usePwa = () => {
           console.log('User dismissed the install prompt');
         }
         setInstallPrompt(null);
-        setCanInstall(false);
       });
+    } else {
+        // You could add a toast here to inform the user
+        // that the app can't be installed right now.
+        console.log("Installation not available at the moment.")
     }
   };
 
