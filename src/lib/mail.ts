@@ -1,3 +1,4 @@
+
 const API_URL = "https://api.mail.tm";
 
 export interface Account {
@@ -56,8 +57,14 @@ export async function createAccount(): Promise<Account> {
     });
 
     if (!createResponse.ok) {
-        const error = await createResponse.json();
-        throw new Error(`Failed to create account: ${error.detail || createResponse.statusText}`);
+        let errorDetail = createResponse.statusText;
+        try {
+            const error = await createResponse.json();
+            errorDetail = error.detail || error.message || errorDetail;
+        } catch (e) {
+            // response is not JSON, use statusText
+        }
+        throw new Error(`Failed to create account: ${errorDetail}`);
     }
     const accountData = await createResponse.json();
 
@@ -68,8 +75,14 @@ export async function createAccount(): Promise<Account> {
     });
 
      if (!tokenResponse.ok) {
-        const error = await tokenResponse.json();
-        throw new Error(`Failed to get token: ${error.detail || tokenResponse.statusText}`);
+        let errorDetail = tokenResponse.statusText;
+        try {
+          const error = await tokenResponse.json();
+          errorDetail = error.detail || error.message || errorDetail;
+        } catch (e) {
+          // response is not JSON, use statusText
+        }
+        throw new Error(`Failed to get token: ${errorDetail}`);
     }
 
     const tokenData = await tokenResponse.json();
