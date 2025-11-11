@@ -63,12 +63,12 @@ export default function MainApp() {
   }, [generateNewEmail]);
   
   useEffect(() => {
-    if (!account?.address) return;
+    if (!account?.token) return;
 
     const fetchMsgs = async () => {
       setIsFetchingMessages(true);
       try {
-        const newMessages = await getMessages(account.address!);
+        const newMessages = await getMessages(account.token!);
         setMessages(newMessages);
       } catch (error) {
         // Silent fail for polling
@@ -82,16 +82,16 @@ export default function MainApp() {
     const intervalId = setInterval(fetchMsgs, POLLING_INTERVAL);
 
     return () => clearInterval(intervalId);
-  }, [account?.address]);
+  }, [account?.token]);
 
-  const handleSelectMessage = async (messageId: number) => {
+  const handleSelectMessage = async (messageId: string) => {
     if (selectedMessage?.id === messageId) return;
 
-    if (!account?.address) return;
+    if (!account?.token) return;
     setIsFetchingDetails(true);
     setSelectedMessage(null); // Clear previous message
     try {
-      const fullMessage = await getMessage(account.address, messageId);
+      const fullMessage = await getMessage(account.token, messageId);
       setSelectedMessage(fullMessage);
     } catch (error) {
       toast({

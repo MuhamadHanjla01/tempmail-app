@@ -8,8 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type InboxViewProps = {
   messages: Message[];
-  onSelectMessage: (id: number) => void;
-  selectedId: number | undefined;
+  onSelectMessage: (id: string) => void;
+  selectedId: string | undefined;
   isLoading: boolean;
 };
 
@@ -63,7 +63,7 @@ export default function InboxView({
             )}
           >
             <div className="flex justify-between items-start text-xs text-muted-foreground">
-              <p className="truncate max-w-[150px]">{message.from}</p>
+              <p className="truncate max-w-[150px]">{message.from.name || message.from.address}</p>
               <p>{formatDistanceToNow(new Date(message.date), { addSuffix: true })}</p>
             </div>
             <p className="text-sm truncate mt-1 text-foreground">{message.subject}</p>

@@ -33,8 +33,8 @@ export default function EmailView({ message, isLoading, onBack }: EmailViewProps
     );
   }
   
-  const fromAddress = message.from;
-  const senderName = fromAddress.split('@')[0];
+  const fromAddress = message.from.address;
+  const senderName = message.from.name || fromAddress.split('@')[0];
   const senderInitial = senderName ? senderName[0].toUpperCase() : 'U';
 
   return (
