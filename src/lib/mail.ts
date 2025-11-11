@@ -61,7 +61,10 @@ export async function createAccount(): Promise<Account> {
         let errorDetail = `(Status: ${createResponse.status})`;
         try {
             const error = await createResponse.json();
-            const message = error.detail || error.message || (error['hydra:description']);
+            let message = error.detail || error.message || (error['hydra:description']);
+            if (createResponse.status === 429 && message) {
+              message = "Too many requests. Please wait a moment before trying again.";
+            }
             if(message) errorDetail = `${message} ${errorDetail}`;
         } catch (e) {
             // response is not JSON, use statusText if available
