@@ -1,146 +1,73 @@
-const API_URL = "https://api.mail.tm";
-
-export interface Domain {
-  id: string;
-  domain: string;
-  isActive: boolean;
-  isPrivate: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+const API_URL = "https://www.1secmail.com/api/v1/";
 
 export interface Account {
-  id: string;
   address: string;
-  token: string;
-  password?: string;
+  token?: string; // Not all functions will need or have a token
 }
 
 export interface Message {
-  id: string;
-  accountId: string;
-  msgid: string;
-  from: {
-    address: string;
-    name: string;
-  };
-  to: {
-    address: string;
-    name: string;
-  }[];
+  id: number;
+  from: string;
   subject: string;
-  intro: string;
-  seen: boolean;
-  isDeleted: boolean;
-  hasAttachments: boolean;
-  size: number;
-  downloadUrl: string;
-  createdAt: string;
-  updatedAt: string;
+  date: string;
+  intro?: string; // Synthesized from body
 }
 
-export interface MessageDetails extends Message {
-  html: string[];
-  text: string;
-}
-
-const generateRandomString = (length: number): string => {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-};
-
-async function getDomains(): Promise<Domain[]> {
-  const response = await fetch(`${API_URL}/domains`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch domains");
-  }
-  const data = await response.json();
-  return data["hydra:member"];
+export interface MessageDetails {
+  id: number;
+  from: string;
+  subject: string;
+  date: string;
+  attachments: {
+    filename: string;
+    contentType: string;
+    size: number;
+  }[];
+  body: string;
+  textBody: string;
+  htmlBody: string;
 }
 
 export async function createAccount(): Promise<Account> {
-  const domains = await getDomains();
-  const activeDomains = domains.filter((d) => d.isActive);
-  if (activeDomains.length === 0) {
-    throw new Error("No active domains available");
-  }
-  const domain = activeDomains[Math.floor(Math.random() * activeDomains.length)].domain;
-  
-  const username = generateRandomString(10);
-  const password = generateRandomString(12);
-  const address = `${username}@${domain}`;
-
-  const response = await fetch(`${API_URL}/accounts`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      address,
-      password,
-    }),
-  });
-
+  const response = await fetch(`${API_URL}?action=genRandomMailbox&count=1`);
   if (!response.ok) {
-    throw new Error("Failed to create account");
+    throw new Error("Failed to generate new email address");
   }
-
-  const accountData = await response.json();
-
-  // Now, get the token
-  const tokenResponse = await fetch(`${API_URL}/token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      address,
-      password,
-    }),
-  });
-
-  if (!tokenResponse.ok) {
-    throw new Error("Failed to get token");
-  }
-
-  const tokenData = await tokenResponse.json();
-
-  return { ...accountData, token: tokenData.token, password };
+  const data = await response.json();
+  const email = data[0];
+  const [login, domain] = email.split('@');
+  return { address: email };
 }
 
-export async function getMessages(token: string): Promise<Message[]> {
-  const response = await fetch(`${API_URL}/messages`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
+export async function getMessages(address: string): Promise<Message[]> {
+  const [login, domain] = address.split('@');
+  const response = await fetch(`${API_URL}?action=getMessages&login=${login}&domain=${domain}`);
+  
   if (!response.ok) {
     if (response.status === 401) {
-        // This can happen if the token is invalid or expired
-        throw new Error("Unauthorized: Invalid token.");
+        throw new Error("Unauthorized: Invalid address.");
     }
     throw new Error("Failed to fetch messages");
   }
 
   const data = await response.json();
-  return data["hydra:member"];
+  return data.map((msg: any) => ({ ...msg, intro: msg.subject }));
 }
 
-export async function getMessage(token: string, id: string): Promise<MessageDetails> {
-  const response = await fetch(`${API_URL}/messages/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export async function getMessage(address: string, id: number): Promise<MessageDetails> {
+  const [login, domain] = address.split('@');
+  const response = await fetch(`${API_URL}?action=readMessage&login=${login}&domain=${domain}&id=${id}`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch message details");
   }
+  const data = await response.json();
 
-  return response.json();
+  // The new API gives html in `body` and text in `textBody`. The old one gave html in `html` and text in `text`.
+  // The component expects `html` and `text`. Let's create them.
+  return {
+    ...data,
+    html: [data.body],
+    text: data.textBody
+  };
 }

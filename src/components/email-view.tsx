@@ -32,8 +32,10 @@ export default function EmailView({ message, isLoading, onBack }: EmailViewProps
       </div>
     );
   }
-
-  const senderInitial = message.from.name ? message.from.name[0].toUpperCase() : 'U';
+  
+  const fromAddress = message.from;
+  const senderName = fromAddress.split('@')[0];
+  const senderInitial = senderName ? senderName[0].toUpperCase() : 'U';
 
   return (
     <div className="p-2 sm:p-4">
@@ -50,17 +52,17 @@ export default function EmailView({ message, isLoading, onBack }: EmailViewProps
               <AvatarFallback>{senderInitial}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <p className="text-sm font-semibold">{message.from.name}</p>
-              <p className="text-xs text-muted-foreground">{`<${message.from.address}>`}</p>
+              <p className="text-sm font-semibold">{senderName}</p>
+              <p className="text-xs text-muted-foreground">{`<${fromAddress}>`}</p>
             </div>
             <div className="text-right text-xs text-muted-foreground">
-              <p>{format(new Date(message.createdAt), "PPpp")}</p>
+              <p>{format(new Date(message.date), "PPpp")}</p>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 prose dark:prose-invert max-w-none">
           <div
-            dangerouslySetInnerHTML={{ __html: Array.isArray(message.html) ? message.html.join('') : message.text }}
+            dangerouslySetInnerHTML={{ __html: message.htmlBody || message.textBody }}
             className="prose-sm sm:prose-base"
           />
         </CardContent>

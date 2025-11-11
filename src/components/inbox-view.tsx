@@ -8,8 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type InboxViewProps = {
   messages: Message[];
-  onSelectMessage: (id: string) => void;
-  selectedId: string | undefined;
+  onSelectMessage: (id: number) => void;
+  selectedId: number | undefined;
   isLoading: boolean;
 };
 
@@ -59,13 +59,12 @@ export default function InboxView({
               "w-full text-left p-3 rounded-lg border transition-colors",
               selectedId === message.id
                 ? "bg-primary/10 border-primary"
-                : "hover:bg-accent/50",
-              !message.seen && "font-bold"
+                : "hover:bg-accent/50"
             )}
           >
             <div className="flex justify-between items-start text-xs text-muted-foreground">
-              <p className="truncate max-w-[150px]">{message.from.name}</p>
-              <p>{formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}</p>
+              <p className="truncate max-w-[150px]">{message.from}</p>
+              <p>{formatDistanceToNow(new Date(message.date), { addSuffix: true })}</p>
             </div>
             <p className="text-sm truncate mt-1 text-foreground">{message.subject}</p>
             <p className="text-xs text-muted-foreground truncate mt-1">{message.intro}</p>
