@@ -15,12 +15,15 @@ import {
 } from '@/components/ui/sidebar';
 import { Home, Settings, PanelLeft, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { usePathname } from 'next/navigation';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -35,13 +38,13 @@ export default function AdminLayout({
         <SidebarContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton href="/admin" isActive>
+              <SidebarMenuButton href="/admin" isActive={pathname === '/admin'}>
                 <Home />
                 Dashboard
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#">
+              <SidebarMenuButton href="/admin/settings" isActive={pathname === '/admin/settings'}>
                 <Settings />
                 Settings
               </SidebarMenuButton>
@@ -58,7 +61,9 @@ export default function AdminLayout({
             <PanelLeft />
           </SidebarTrigger>
           <div className="flex-1">
-            <h1 className="text-lg font-semibold md:text-xl">Dashboard</h1>
+             <h1 className="text-lg font-semibold md:text-xl">
+              {pathname === '/admin' ? 'Dashboard' : 'Settings'}
+            </h1>
           </div>
         </header>
         {children}
