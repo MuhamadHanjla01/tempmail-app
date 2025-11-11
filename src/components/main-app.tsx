@@ -16,7 +16,10 @@ const TIMER_MINUTES = 10;
 export default function MainApp() {
   const [account, setAccount] = useState<Account | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [selectedMessage, setSelectedMessage] = useState<MessageDetails | null>(null);
+  const [selectedMessage, setSelectedMessage] = useState<MessageDetails | null>(
+    null
+  );
+  const [selectedMessageId, setSelectedMessageId] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState(true);
   const [isFetchingMessages, setIsFetchingMessages] = useState(false);
   const [isFetchingDetails, setIsFetchingDetails] = useState(false);
@@ -38,6 +41,7 @@ export default function MainApp() {
     setIsGenerating(true);
     setMessages([]);
     setSelectedMessage(null);
+    setSelectedMessageId(null);
     setAccount(null);
     try {
       const newAccount = await createAccount();
@@ -48,6 +52,7 @@ export default function MainApp() {
         description: "Your new temporary email is ready.",
       });
     } catch (error) {
+      console.error(error);
       toast({
         title: "Error",
         description: "Failed to generate a new email. Please try again.",
@@ -61,15 +66,18 @@ export default function MainApp() {
   useEffect(() => {
     generateNewEmail();
   }, [generateNewEmail]);
-  
+
   useEffect(() => {
-    if (!account?.token) return;
+    if (!account?.address) return;
 
     const fetchMsgs = async () => {
       setIsFetchingMessages(true);
       try {
-        const newMessages = await getMessages(account.token!);
-        setMessages(newMessages);
+        const newMessages = await getMessages(account.address);
+        // Check for new messages before updating state to avoid unnecessary re-renders
+        if (JSON.stringify(newMessages) !== JSON.stringify(messages)) {
+          setMessages(newMessages);
+        }
       } catch (error) {
         // Silent fail for polling
         console.error("Failed to fetch messages:", error);
@@ -82,16 +90,17 @@ export default function MainApp() {
     const intervalId = setInterval(fetchMsgs, POLLING_INTERVAL);
 
     return () => clearInterval(intervalId);
-  }, [account?.token]);
+  }, [account?.address, messages]);
 
-  const handleSelectMessage = async (messageId: string) => {
-    if (selectedMessage?.id === messageId) return;
+  const handleSelectMessage = async (messageId: number) => {
+    if (selectedMessageId === messageId) return;
 
-    if (!account?.token) return;
+    if (!account?.address) return;
     setIsFetchingDetails(true);
-    setSelectedMessage(null); // Clear previous message
+    setSelectedMessage(null);
+    setSelectedMessageId(messageId);
     try {
-      const fullMessage = await getMessage(account.token, messageId);
+      const fullMessage = await getMessage(account.address, messageId);
       setSelectedMessage(fullMessage);
     } catch (error) {
       toast({
@@ -99,6 +108,7 @@ export default function MainApp() {
         description: "Could not fetch email content.",
         variant: "destructive",
       });
+      setSelectedMessageId(null); // Deselect on error
     } finally {
       setIsFetchingDetails(false);
     }
@@ -106,7 +116,8 @@ export default function MainApp() {
 
   const handleDeselect = () => {
     setSelectedMessage(null);
-  }
+    setSelectedMessageId(null);
+  };
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground font-body">
@@ -118,7 +129,8 @@ export default function MainApp() {
         isGenerating={isGenerating}
       />
       <main className="flex-1 flex overflow-hidden">
-        <div className={cn(
+        <div
+          className={cn(
             "w-full md:w-[350px] md:flex-shrink-0 border-r border-border/50 h-full overflow-y-auto",
             selectedMessage && "hidden md:block"
           )}
@@ -126,11 +138,12 @@ export default function MainApp() {
           <InboxView
             messages={messages}
             onSelectMessage={handleSelectMessage}
-            selectedId={selectedMessage?.id}
+            selectedId={selectedMessageId}
             isLoading={isFetchingMessages && messages.length === 0}
           />
         </div>
-        <div className={cn(
+        <div
+          className={cn(
             "flex-1 h-full overflow-y-auto",
             !selectedMessage && "hidden md:flex"
           )}

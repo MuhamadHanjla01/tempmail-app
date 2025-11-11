@@ -1,20 +1,19 @@
 
-const API_URL = "https://api.mail.gw";
-const DOMAIN = "web.info"; // mail.gw provides a list of domains, we'll use one
+const API_URL = "https://www.1secmail.com/api/v1/";
 
 export interface Account {
   address: string;
-  token: string;
-  id: string;
+  token: string; // Not used by 1secmail, but kept for interface compatibility
+  id: string; // Not used by 1secmail, but kept for interface compatibility
 }
 
 export interface Message {
-  id: string; // Changed from number to string
-  from: { address: string, name: string };
-  to: { address: string, name: string }[];
+  id: number;
+  from: { address: string; name: string };
+  to: { address: string; name: string }[];
   subject: string;
-  date: string; // The API provides it as a string
-  intro: string; 
+  date: string;
+  intro: string;
 }
 
 export interface MessageDetails extends Message {
@@ -23,100 +22,66 @@ export interface MessageDetails extends Message {
     contentType: string;
     size: number;
   }[];
-  body: string; // Not provided by new API in list view
+  body: string;
   textBody: string;
   htmlBody: string;
 }
 
-
-function generateRandomString(length: number) {
-    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
-}
-
 export async function createAccount(): Promise<Account> {
-    const address = `${generateRandomString(10)}@${DOMAIN}`;
-    const password = generateRandomString(12);
-
-    const createResponse = await fetch(`${API_URL}/accounts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address, password }),
-    });
-
-    if (!createResponse.ok) {
-        throw new Error("Failed to create email account on mail.gw");
-    }
-    const accountData = await createResponse.json();
-
-    const tokenResponse = await fetch(`${API_URL}/token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address, password }),
-    });
-
-    if (!tokenResponse.ok) {
-        throw new Error("Failed to get auth token from mail.gw");
-    }
-
-    const tokenData = await tokenResponse.json();
-    
-    return {
-        id: accountData.id,
-        address: address,
-        token: tokenData.token,
-    };
+  const response = await fetch(`${API_URL}?action=genRandomMailbox&count=1`);
+  if (!response.ok) {
+    throw new Error("Failed to generate email address from 1secmail.");
+  }
+  const data = await response.json();
+  const address = data[0];
+  
+  return {
+    address: address,
+    // 1secmail doesn't use tokens or account IDs, but we'll fill these for compatibility
+    token: "not-needed", 
+    id: "not-needed",
+  };
 }
 
-export async function getMessages(token: string): Promise<Message[]> {
-  const response = await fetch(`${API_URL}/messages`, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  });
-  
+export async function getMessages(address: string): Promise<Message[]> {
+  if (!address) return [];
+  const [login, domain] = address.split("@");
+  const response = await fetch(
+    `${API_URL}?action=getMessages&login=${login}&domain=${domain}`
+  );
   if (!response.ok) {
-    if (response.status === 401) {
-        throw new Error("Unauthorized: Invalid token.");
-    }
     throw new Error("Failed to fetch messages");
   }
-
   const data = await response.json();
-  // The new API uses 'hydra:member'
-  if (!data['hydra:member']) return [];
-  
-  return data['hydra:member'].map((msg: any) => ({
+  return data.map((msg: any) => ({
     id: msg.id,
-    from: msg.from,
-    to: msg.to,
+    from: { address: msg.from, name: msg.from.split('@')[0] },
+    to: [{ address: address, name: login }],
     subject: msg.subject,
-    date: msg.createdAt, // Switched to createdAt
-    intro: msg.intro,
+    date: msg.date,
+    intro: msg.subject, // 1secmail doesn't provide an intro/snippet
   }));
 }
 
-export async function getMessage(token: string, id: string): Promise<MessageDetails> {
-  const response = await fetch(`${API_URL}/messages/${id}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-  });
-
+export async function getMessage(address: string, id: number): Promise<MessageDetails> {
+  const [login, domain] = address.split("@");
+  const response = await fetch(
+    `${API_URL}?action=readMessage&login=${login}&domain=${domain}&id=${id}`
+  );
   if (!response.ok) {
     throw new Error("Failed to fetch message details");
   }
   const data = await response.json();
-  
   return {
-    ...data,
     id: data.id,
-    from: data.from,
+    from: { address: data.from, name: data.from.split('@')[0] },
+    to: [{ address: address, name: login }],
     subject: data.subject,
-    date: data.createdAt,
+    date: data.date,
     attachments: data.attachments || [],
-    body: data.html?.[0] || data.text || "",
-    textBody: data.text || "",
-    htmlBody: data.html?.[0] || "",
+    body: data.htmlBody || data.textBody,
+    textBody: data.textBody,
+    htmlBody: data.htmlBody,
+    intro: data.subject,
   };
 }

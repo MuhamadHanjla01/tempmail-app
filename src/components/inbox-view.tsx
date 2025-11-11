@@ -8,8 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type InboxViewProps = {
   messages: Message[];
-  onSelectMessage: (id: string) => void;
-  selectedId: string | undefined;
+  onSelectMessage: (id: number) => void;
+  selectedId: number | null;
   isLoading: boolean;
 };
 
@@ -39,7 +39,7 @@ export default function InboxView({
       <div className="flex flex-col items-center justify-center h-full p-4 text-center text-muted-foreground">
         <Inbox className="w-16 h-16 mb-4" />
         <h3 className="font-semibold text-lg">Your inbox is empty</h3>
-        <p className="text-sm">New emails will appear here.</p>
+        <p className="text-sm">Waiting for new emails...</p>
       </div>
     );
   }
