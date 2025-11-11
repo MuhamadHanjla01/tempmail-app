@@ -1,6 +1,8 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Users, CreditCard, Activity } from "lucide-react";
+import OverviewChart from "@/components/admin/overview-chart";
+import RecentSales from "@/components/admin/recent-sales";
 
 
 export default function AdminPage() {
@@ -62,16 +64,27 @@ export default function AdminPage() {
           </CardContent>
         </Card>
       </div>
-       <div className="flex-1 rounded-xl border-2 border-dashed flex items-center justify-center">
-            <div className="text-center p-8">
-              <h2 className="text-2xl font-bold tracking-tight">
-                Your Admin Dashboard
-              </h2>
-              <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-                This is your central hub for managing your application. Start building your powerful features and controls here.
-              </p>
-            </div>
-      </div>
+       <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+          <Card className="xl:col-span-2">
+            <CardHeader>
+              <CardTitle>Overview</CardTitle>
+            </CardHeader>
+            <CardContent className="pl-2">
+              <OverviewChart />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Sales</CardTitle>
+              <CardDescription>
+                You made 265 sales this month.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RecentSales />
+            </CardContent>
+          </Card>
+        </div>
     </main>
   );
 }
