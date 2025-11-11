@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 export const metadata: Metadata = {
   title: 'Temp-Mail',
   description: 'No Login, No Signup, Just Privacy.',
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({

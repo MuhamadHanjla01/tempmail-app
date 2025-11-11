@@ -19,6 +19,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { usePwa } from "@/hooks/use-pwa";
 
 type AppHeaderProps = {
   email: string;
@@ -41,6 +42,7 @@ export default function AppHeader({
 }: AppHeaderProps) {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  const { canInstall, promptInstall } = usePwa();
 
   const handleCopy = () => {
     if (isGenerating || !email) return;
@@ -50,6 +52,11 @@ export default function AppHeader({
       description: email,
     });
   };
+
+  const handleDownload = () => {
+    promptInstall();
+  };
+
 
   return (
     <header className="border-b p-3">
@@ -130,18 +137,20 @@ export default function AppHeader({
             </Tooltip>
           </TooltipProvider>
 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Download className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Download App</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {canInstall && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon" onClick={handleDownload}>
+                    <Download className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Download App</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
