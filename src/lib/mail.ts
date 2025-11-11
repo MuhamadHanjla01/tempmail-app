@@ -58,14 +58,16 @@ export async function createAccount(): Promise<Account> {
     });
 
     if (!createResponse.ok) {
-        let errorDetail = createResponse.statusText;
+        let errorDetail = `(Status: ${createResponse.status})`;
         try {
             const error = await createResponse.json();
-            errorDetail = error.detail || error.message || errorDetail;
+            const message = error.detail || error.message;
+            if(message) errorDetail = `${message} ${errorDetail}`;
         } catch (e) {
-            // response is not JSON, use statusText
+            // response is not JSON, use statusText if available
+            if(createResponse.statusText) errorDetail = `${createResponse.statusText} ${errorDetail}`;
         }
-        throw new Error(`Failed to create account: ${errorDetail || 'Unknown error'}`);
+        throw new Error(`Failed to create account: ${errorDetail}`);
     }
     const accountData = await createResponse.json();
 
@@ -76,14 +78,16 @@ export async function createAccount(): Promise<Account> {
     });
 
      if (!tokenResponse.ok) {
-        let errorDetail = tokenResponse.statusText;
+        let errorDetail = `(Status: ${tokenResponse.status})`;
         try {
           const error = await tokenResponse.json();
-          errorDetail = error.detail || error.message || errorDetail;
+          const message = error.detail || error.message;
+          if(message) errorDetail = `${message} ${errorDetail}`;
         } catch (e) {
           // response is not JSON, use statusText
+          if(tokenResponse.statusText) errorDetail = `${tokenResponse.statusText} ${errorDetail}`;
         }
-        throw new Error(`Failed to get token: ${errorDetail || 'Unknown error'}`);
+        throw new Error(`Failed to get token: ${errorDetail}`);
     }
 
     const tokenData = await tokenResponse.json();
@@ -108,14 +112,16 @@ export async function login(address: string, password?: string): Promise<Account
     });
 
      if (!tokenResponse.ok) {
-        let errorDetail = tokenResponse.statusText;
+        let errorDetail = `(Status: ${tokenResponse.status})`;
         try {
           const error = await tokenResponse.json();
-          errorDetail = error.detail || error.message || errorDetail;
+          const message = error.detail || error.message;
+          if(message) errorDetail = `${message} ${errorDetail}`;
         } catch (e) {
           // response is not JSON, use statusText
+           if(tokenResponse.statusText) errorDetail = `${tokenResponse.statusText} ${errorDetail}`;
         }
-        throw new Error(`Failed to log in: ${errorDetail || 'Unknown error'}`);
+        throw new Error(`Failed to log in: ${errorDetail}`);
     }
     const tokenData = await tokenResponse.json();
 
