@@ -5,7 +5,6 @@ import { useTempMail } from '@/hooks/use-temp-mail';
 import AppHeader from '@/components/app-header';
 import InboxSidebar from '@/components/inbox-sidebar';
 import MessageViewer from '@/components/message-viewer';
-import AdSenseAd from '@/components/adsense-ad';
 
 export default function Home() {
   const { restoreSession, fetchMessages, isAutoRefreshEnabled } = useTempMail();
@@ -29,14 +28,6 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen bg-background text-foreground font-sans overflow-hidden">
       <AppHeader />
-      
-      {/* AdSense Ad Unit as requested */}
-      <div className="hidden md:flex justify-center border-b bg-muted/30 min-h-[90px] max-h-[90px] w-full overflow-hidden">
-        <AdSenseAd 
-          adSlot="YYYYYYYYYY" 
-          className="w-full max-w-[728px] h-[90px]" 
-        />
-      </div>
 
       <main className="flex-1 flex overflow-hidden">
         <InboxSidebar />
