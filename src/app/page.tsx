@@ -31,10 +31,12 @@ export default function Home() {
       <AppHeader />
       
       {/* AdSense Ad Unit as requested */}
-      <AdSenseAd 
-        adSlot="YYYYYYYYYY" 
-        className="w-full text-center p-2 bg-muted/30 border-b hidden md:block" 
-      />
+      <div className="hidden md:flex justify-center border-b bg-muted/30 min-h-[90px] max-h-[90px] w-full overflow-hidden">
+        <AdSenseAd 
+          adSlot="YYYYYYYYYY" 
+          className="w-full max-w-[728px] h-[90px]" 
+        />
+      </div>
 
       <main className="flex-1 flex overflow-hidden">
         <InboxSidebar />
