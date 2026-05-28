@@ -15,7 +15,7 @@ interface TempMailState {
   // Actions
   generateNewAccount: () => Promise<void>;
   fetchMessages: () => Promise<void>;
-  selectMessage: (id: string) => void;
+  selectMessage: (id: string | null) => void;
   deleteMessage: (id: string) => Promise<void>;
   toggleAutoRefresh: () => void;
   restoreSession: () => Promise<void>;
@@ -79,11 +79,11 @@ export const useTempMail = create<TempMailState>()(
         }
       },
 
-      selectMessage: (id: string) => {
+      selectMessage: (id: string | null) => {
         const { readMessageIds } = get();
         set({
           selectedMessageId: id,
-          readMessageIds: readMessageIds.includes(id) ? readMessageIds : [...readMessageIds, id],
+          readMessageIds: id && !readMessageIds.includes(id) ? [...readMessageIds, id] : readMessageIds,
         });
       },
 
