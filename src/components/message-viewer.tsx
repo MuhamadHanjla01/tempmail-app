@@ -7,8 +7,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Mail, Paperclip, Download } from 'lucide-react';
 import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
-export default function MessageViewer() {
+interface MessageViewerProps {
+  onBack?: () => void;
+}
+
+export default function MessageViewer({ onBack }: MessageViewerProps) {
   const { selectedMessageId, token, messages } = useTempMail();
   const [message, setMessage] = useState<Message | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -113,8 +119,15 @@ export default function MessageViewer() {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-background overflow-hidden relative">
-      <div className="p-6 border-b shrink-0 bg-background/95 sticky top-0 z-10 shadow-sm">
-        <h2 className="text-2xl font-bold mb-4 tracking-tight">{message.subject || '(No subject)'}</h2>
+      <div className="p-4 md:p-6 border-b shrink-0 bg-background/95 sticky top-0 z-10 shadow-sm">
+        <div className="flex items-center gap-3 mb-4">
+          {onBack && (
+            <Button variant="ghost" size="icon" className="md:hidden shrink-0 h-8 w-8 -ml-2" onClick={onBack}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          )}
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight line-clamp-2">{message.subject || '(No subject)'}</h2>
+        </div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm">
           <div className="grid gap-1">
             <div className="flex items-center gap-2">
