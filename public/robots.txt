@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://MuhamadHanjla01.github.io/tempmail-app/sitemap.xml
