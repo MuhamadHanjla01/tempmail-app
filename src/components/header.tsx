@@ -89,6 +89,7 @@ export default function AppHeader({
           </div>
           <h1 className="text-2xl font-bold tracking-tighter hidden sm:block">
             Temp<span className="gradient-text">Mail</span>
+            <span className="sr-only"> - Free Disposable Temporary Email Address</span>
           </h1>
         </div>
 
