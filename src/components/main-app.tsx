@@ -241,7 +241,7 @@ export default function MainApp() {
         <main className="flex-1 flex overflow-hidden">
           <div
             className={cn(
-              "w-full md:w-[400px] lg:w-[450px] md:flex-shrink-0 border-r h-full overflow-y-auto",
+              "w-full md:w-[400px] lg:w-[450px] md:flex-shrink-0 border-r h-full overflow-y-auto scrollbar-hide",
               selectedMessageId && "hidden md:block"
             )}
           >
