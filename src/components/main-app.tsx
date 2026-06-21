@@ -117,13 +117,13 @@ export default function MainApp() {
         const newMessages = await getMessages(activeToken);
         
         // Only show toast for new messages, not on initial load or switch
-        if (newMessages.length > messages.length && !isInitial) {
-           const latestMessage = newMessages[0];
-            toast({
-              title: "New Email Received!",
-              description: `From: ${latestMessage.from.name || latestMessage.from.address} - ${latestMessage.subject}`,
-            });
-        }
+        // if (newMessages.length > messages.length && !isInitial) {
+        //    const latestMessage = newMessages[0];
+        //     toast({
+        //       title: "New Email Received!",
+        //       description: `From: ${latestMessage.from.name || latestMessage.from.address} - ${latestMessage.subject}`,
+        //     });
+        // }
         setMessages(newMessages);
 
       } catch (error) {
