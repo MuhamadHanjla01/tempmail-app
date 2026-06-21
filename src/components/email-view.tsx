@@ -82,7 +82,7 @@ export default function EmailView({ message, isLoading, onBack, token }: EmailVi
               Back to Inbox
           </Button>
        </div>
-      <div className="flex-1 overflow-y-auto p-0 sm:p-4">
+      <div className="flex-1 overflow-y-auto scrollbar-hide p-0 sm:p-4">
         <Card className="rounded-none sm:rounded-xl shadow-none sm:shadow-lg h-full">
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-xl sm:text-2xl font-bold tracking-tight">{message.subject}</CardTitle>
@@ -102,7 +102,7 @@ export default function EmailView({ message, isLoading, onBack, token }: EmailVi
             </div>
           </CardHeader>
           <Separator />
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4 sm:p-6 overflow-x-auto scrollbar-hide">
              <div
               className="prose dark:prose-invert max-w-none"
               dangerouslySetInnerHTML={{ __html: message.htmlBody || `<p>${message.textBody}</p>` }}
