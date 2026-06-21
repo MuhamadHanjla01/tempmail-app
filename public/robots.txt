@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://MuhamadHanjla01.github.io/tempmail-app/sitemap.xml
+Sitemap: https://muhamadhanjla01.github.io/tempmail-app/sitemap.xml
