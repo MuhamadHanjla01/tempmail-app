@@ -83,7 +83,7 @@ export default function EmailView({ message, isLoading, onBack, token }: EmailVi
           </Button>
        </div>
       <div className="flex-1 overflow-y-auto scrollbar-hide p-0 sm:p-4">
-        <Card className="rounded-none sm:rounded-xl shadow-none sm:shadow-lg h-full">
+        <Card className="rounded-none sm:rounded-xl shadow-none sm:shadow-lg">
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-xl sm:text-2xl font-bold tracking-tight">{message.subject}</CardTitle>
             <Separator className="my-4" />
