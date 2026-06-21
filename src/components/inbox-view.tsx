@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
 
 type InboxViewProps = {
   messages: Message[];
@@ -52,10 +53,11 @@ export default function InboxView({
   onSwitchToFavorite,
   currentAccount,
 }: InboxViewProps) {
+  const [activeTab, setActiveTab] = useState("inbox");
 
   return (
     <div className="h-full flex flex-col bg-secondary/20">
-        <Tabs defaultValue="inbox" className="flex-1 flex flex-col">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
             <div className="p-4 border-b glass">
                 <div className="flex items-center justify-between gap-2 mb-3">
                     <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
@@ -198,7 +200,10 @@ export default function InboxView({
                               "w-full h-auto justify-start rounded-xl py-3 transition-all",
                               currentAccount?.address === favAccount.address && "border border-primary/20 shadow-sm"
                             )}
-                            onClick={() => onSwitchToFavorite(favAccount)}
+                            onClick={() => {
+                              onSwitchToFavorite(favAccount);
+                              setActiveTab("inbox");
+                            }}
                             >
                                 <div className="flex items-center gap-3 text-left">
                                     <Avatar className="h-8 w-8">
