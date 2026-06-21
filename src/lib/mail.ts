@@ -140,23 +140,48 @@ export async function login(address: string, password?: string): Promise<Account
 
 export async function getMessages(token: string): Promise<Message[]> {
   if (!token) return [];
-  const response = await fetch(`${API_URL}/messages`, {
-    headers: { Authorization: `Bearer ${token}` },
-    cache: 'no-store'
-  });
-  if (!response.ok) {
-    if (response.status === 401) {
-        console.error("Unauthorized to fetch messages. Token might be invalid.");
-        return [];
-    }
-    console.error("Failed to fetch messages");
-    return [];
-  }
-  const data = await response.json();
-  
-  if (!data["hydra:member"]) return [];
+  let allMessages: any[] = [];
+  let page = 1;
+  let hasMore = true;
 
-  return data["hydra:member"].map((msg: any) => ({
+  try {
+    while (hasMore) {
+      const response = await fetch(`${API_URL}/messages?page=${page}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store'
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+            console.error("Unauthorized to fetch messages. Token might be invalid.");
+            break;
+        }
+        console.error(`Failed to fetch messages on page ${page}`);
+        break;
+      }
+      
+      const data = await response.json();
+      const members = data["hydra:member"];
+      
+      if (!members || members.length === 0) {
+        hasMore = false;
+        break;
+      }
+      
+      allMessages = [...allMessages, ...members];
+      
+      // Check if there is a next page
+      if (data["hydra:view"] && data["hydra:view"]["hydra:next"]) {
+        page++;
+      } else {
+        hasMore = false;
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching paginated messages:", error);
+  }
+
+  return allMessages.map((msg: any) => ({
     id: msg.id,
     from: msg.from,
     to: msg.to,
