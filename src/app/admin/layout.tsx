@@ -22,7 +22,9 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
+  const rawPathname = usePathname();
+  // Strip basePath for route matching (usePathname includes basePath on static export)
+  const pathname = rawPathname.replace(/^\/tempmail-app/, '') || '/';
 
   return (
     <SidebarProvider>
