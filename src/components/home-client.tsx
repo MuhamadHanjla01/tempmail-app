@@ -1,0 +1,24 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import SplashScreen from "@/components/splash-screen";
+import MainApp from "@/components/main-app";
+
+export default function HomeClient() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Show splash screen for 2 seconds
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000); 
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <SplashScreen />;
+  }
+
+  return <MainApp />;
+}
